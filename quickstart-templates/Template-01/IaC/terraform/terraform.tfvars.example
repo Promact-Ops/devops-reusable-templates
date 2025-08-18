@@ -1,0 +1,40 @@
+# Example terraform.tfvars file
+# Copy this file to terraform.tfvars and customize the values
+
+# Project Configuration
+project_name = "promact-reusability-initiative"
+environment  = "poc"
+owner        = "devops-team"
+
+# AWS Configuration
+aws_region = "us-east-1"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zone = "us-east-1a"
+public_subnet_cidr  = "10.0.1.0/24"
+private_subnet_cidr = "10.0.2.0/24"
+second_public_subnet_cidr = "10.0.4.0/24"
+second_private_subnet_cidr = "10.0.3.0/24"
+
+# EC2 Configuration
+use_custom_ami = false  # Set to true to use custom AMI
+ec2_ami = ""  # Custom AMI ID (only used when use_custom_ami = true)
+ec2_instance_type = "t3.micro"
+ec2_root_volume_size = 20
+ec2_key_name = "my-ec2-key"  # REQUIRED: Name of your EC2 key pair for SSH access
+
+# RDS Configuration
+use_custom_db_version = false  # Set to true to use custom PostgreSQL version
+rds_engine_version = "16.0"  # Custom version (only used when use_custom_db_version = true)
+rds_instance_class = "db.t3.micro"
+rds_allocated_storage = 20
+rds_max_allocated_storage = 100
+rds_db_name = "mydatabase"  # Only lowercase letters, numbers, underscores - NO HYPHENS
+rds_username = "postgres"
+rds_password = "YourSecurePassword123!"  # Change this!
+
+# Common Tags
+common_tags = {
+  CreatedBy   = "terraform"
+}
