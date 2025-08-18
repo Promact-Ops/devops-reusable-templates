@@ -224,7 +224,7 @@ After setting up your GitHub secrets and variables, you'll need to clone sample 
 **What's Available:**
 - **Frontend Templates**: Next.js, Vite, React, Vue.js
 - **Backend Templates**: Node.js, Python FastAPI, .NET, Java
-- **Docker Compose Files**: Ready-to-use configurations
+- **Docker Compose Files**: Ready-to-use configurations (copied during infrastructure creation)
 - **Sample Applications**: Complete working examples
 
 **Repository Structure:**
@@ -243,6 +243,8 @@ sample-repos/
 ```
 
 > **💡 Pro Tip**: This repository contains production-ready templates that you can customize for your specific needs. The Docker Compose files are already configured to work with the infrastructure you just created.
+
+> **⚠️ Important**: If you customize the deploy commands used in the `.github/workflows` files, first refer to the comments in the Docker Compose file: [docker-compose-Template-01.yml](https://github.com/Promact-Ops/devops-docker-templates/blob/main/docker-compose-templates/docker-compose-Template-01.yml)
 
 ---
 
