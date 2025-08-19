@@ -1,10 +1,7 @@
 # 🚀 Template 01 - Deploy Frontend and Backend to AWS EC2, RDS, S3
+This template creates a complete, production-ready AWS infrastructure along with a CI/CD pipeline, seamlessly integrating with your existing frontend and backend repositories.
 
-## 🏗️ **Infrastructure Overview**
-
-This template creates a complete, production-ready AWS infrastructure:
-
-### **Cloud Services Created**
+**The following cloud services will be created using this template:**
 | Service | Purpose | Details |
 |---------|---------|---------|
 | **VPC** | Network isolation | Public/private subnets, security groups, route tables |
@@ -14,51 +11,40 @@ This template creates a complete, production-ready AWS infrastructure:
 | **IAM** | Security | Role-based access control for EC2-S3 communication |
 | **Security Groups** | Network security | Port 22 (SSH), 80 (HTTP), 8080 (Backend) access |
 
-## 📋 **Prerequisites**
+### 📋 **Prerequisites**
 
 Before starting, ensure you have all the required software and configurations installed. 
 
-**📖 [Complete Prerequisites Guide](../../prerequisites/README.md)**
+**-> [Complete Prerequisites Guide](../../prerequisites/README.md)**
 
-**📋 Repository Requirements**: Ensure your existing frontend and backend repositories are already cloned locally for Infrastructure and CI/CD setup. 
+**Repository Requirements**: Ensure your existing frontend and backend repositories are already cloned locally for Infrastructure and CI/CD setup. 
 
 This includes:
-- ✅ **GitHub Account** with repository creation access
 - ✅ **AWS Account** with administrator access  
 - ✅ **Basic Git knowledge** and command line experience
 - ✅ **AWS CLI** installed and configured
 - ✅ **Terraform CLI** installed and working
 
-> **🔑 AWS Access Required**: You'll need AWS access key ID and secret access key to configure AWS CLI. These are created in the AWS IAM console.
-
-
 ---
 
-## 🚀 **Quick Start Guide**
+### 🚀 **Quick Start Guide**
 
-This guide will walk you through setting up your development environment and deploying your applications to AWS infrastructure.
+This guide will walk you through setting up your environment and deploying your applications to AWS infrastructure.
 
 > **💡 Pro Tip**: Each step builds on the previous one. Follow the process in order for the best experience.
 
 
-
-
-
-## 🛠️ Setup Instructions
-
----
-
-### 📍 **Step 1: Create AWS Infrastructure Using Terraform**
+#### **Step 1: Create AWS Infrastructure Using Terraform**
 
 > **📖 Detailed Guide**: Clone the repository first to get the Terraform configuration files, then copy them to your own repository's Infrastructure folder
 
-#### **A. AWS CLI Configuration**
+**A - AWS CLI Configuration**
 
 > **📖 AWS CLI Configuration is covered in the [Prerequisites Guide](../../../prerequisites/README.md#%EF%B8%8F-aws-cli-configuration)**
 
 Ensure you have completed the AWS CLI setup before proceeding with this step.
 
-#### **B. Create EC2 SSH Key Pair (Required)**
+**B. Create EC2 SSH Key Pair (Required)**
 
 **Create, Configure, and Verify SSH Key Pair (Single Command):**
 
@@ -92,7 +78,7 @@ echo "🔑 Use this key name in terraform.tfvars: ec2_key_name = \"$SSH_KEY_NAME
 > - Keep your private key secure (never share it)
 > - The key will be used to SSH into your EC2 instance
 
-#### **C. Start Terraform Deployment**
+**C. Start Terraform Deployment**
 
 1. **Clone the Repository:**
 
@@ -144,6 +130,29 @@ echo "🔑 Use this key name in terraform.tfvars: ec2_key_name = \"$SSH_KEY_NAME
    ```bash
    cp terraform.tfvars.example terraform.tfvars
    ```
+📋 **Terraform Variables Options**
+
+**VPC Configuration**
+- **CIDR Block**: Customizable VPC and subnet ranges
+- **Availability Zone**: Multi-AZ deployment (us-east-1a, us-east-1b)
+- **Security Groups**: Ports 22 (SSH), 80 (HTTP), 8080 (Backend)
+
+**S3 Configuration**
+- **Bucket Name**: Automatically generated as `project_name-environment-random4digit`
+- **Access Control**: Private with IAM role-based access
+- **Encryption**: AES256 server-side encryption
+
+**EC2 Configuration**
+- **Instance Type**: Configurable (default: t3.micro)
+- **AMI**: Latest Ubuntu 22.04 LTS (auto-detected) or custom AMI
+- **Storage**: 20GB encrypted GP3 volume
+- **Docker**: Automatically installed and configured on instance launch
+
+**RDS Configuration**
+- **Engine**: Latest PostgreSQL version (auto-detected) or custom version
+- **Instance Class**: Configurable (default: db.t3.micro)
+- **Storage**: 20GB initial, auto-scaling to 100GB
+- **Security**: Private subnet, EC2-only access
 
    **Edit terraform.tfvars with your project details:**
    Update: `project_name`, `environment`, `ec2_key_name` (which we created in earlier steps), etc.
@@ -179,23 +188,23 @@ echo "🔑 Use this key name in terraform.tfvars: ec2_key_name = \"$SSH_KEY_NAME
 
 
 
-## 🔄 **What Happens Next?**
+🔄 **What Happens Next?**
 
 After successfully deploying your infrastructure with Terraform:
 
-1. **Save the Output**: Run `terraform output github_secrets_setup_guide` to get the complete setup guide
+1. **Save the Output**: Run `terraform output github_secrets_setup_guide` to get the infrastrure details like public ip, db hostname etc.
 2. **Continue to Step 2**: Create GitHub Repositories
 3. **Prepare for Deployment**: Your EC2 instance will be ready with Docker installed
 4. **Get Connection Details**: Use the outputs to configure your GitHub repositories
 
-### **Key Outputs You'll Need:**
+**Key Outputs You'll Need:**
 - **EC2 Elastic IP**: For `SERVER_HOST` secret
 - **Project Paths**: For GitHub variables
 - **S3 Bucket Details**: For application configuration
 - **RDS Endpoint**: For database connections
 
 ---
-### 📍 **Step 2: Set Up GitHub Secrets and Variables**
+#### **Step 2: Set Up GitHub Secrets and Variables**
 
 1. **Go to Your Frontend Repository:**
    - Navigate to Settings → Secrets and variables → Actions
@@ -213,9 +222,11 @@ After successfully deploying your infrastructure with Terraform:
    - Repeat the same process for backend repository
    - Use the same secret values but different variable values if needed
 
----
 
-## 📚 **Sample Code Repository Reference**
+
+#### **Step 3: Clone Sample Code Repository**
+
+📚 **Sample Code Repository Reference**
 
 After setting up your GitHub secrets and variables, you'll need to clone sample code from the official repository:
 
@@ -246,10 +257,6 @@ sample-repos/
 
 > **⚠️ Important**: If you customize the deploy commands used in the `.github/workflows` files, first refer to the comments in the Docker Compose file: [docker-compose-Template-01.yml](https://github.com/Promact-Ops/devops-docker-templates/blob/main/docker-compose-templates/docker-compose-Template-01.yml)
 
----
-
-### 📍 **Step 3: Clone Sample Code Repository**
-
 **Clone the sample code repository:**
 ```bash
 git clone https://github.com/Promact-Ops/devops-docker-templates.git
@@ -262,7 +269,7 @@ cd devops-docker-templates/sample-repos
 
 ---
 
-### 📍 **Step 4: Set Up Frontend Repository**
+#### **Step 4: Set Up Frontend Repository**
 
 **Navigate to your preferred frontend framework:**
 
@@ -332,7 +339,7 @@ your-frontend-repo/
 
 ---
 
-### 📍 **Step 5: Set Up Backend Repository**
+#### **Step 5: Set Up Backend Repository**
 
 **Navigate to your preferred backend framework:**
 
@@ -407,7 +414,7 @@ your-backend-repo/
 
 ---
 
-### 📍 **Step 6: Push All Changes To Your Frontend and Backend Repo**
+#### **Step 6: Push All Changes To Your Frontend and Backend Repo**
 
 **Before pushing your changes, follow these important cleanup steps:**
 
@@ -456,7 +463,7 @@ your-backend-repo/
 > **💡 Pro Tip**: Keep a secure backup of your database credentials and other sensitive information from `terraform.tfvars` before removing the file.
 
 ---
-### 📍 **Step 7: Remove Cloned Repositories**
+#### **Step 7: Remove Cloned Repositories**
 
 **Return to directory where we clone the repository and remove the devops-docker-templates repository:**
 ```bash
@@ -474,50 +481,15 @@ rm -rf devops-reusable-templates
 
 ---
 
-## 📋 **Configuration Options**
+### 🔍 **Troubleshooting Common Issues**
 
-### **VPC Configuration**
-- **CIDR Block**: Customizable VPC and subnet ranges
-- **Availability Zone**: Multi-AZ deployment (us-east-1a, us-east-1b)
-- **Security Groups**: Ports 22 (SSH), 80 (HTTP), 8080 (Backend)
 
-### **S3 Configuration**
-- **Bucket Name**: Automatically generated as `project_name-environment-random4digit`
-- **Access Control**: Private with IAM role-based access
-- **Encryption**: AES256 server-side encryption
-
-### **EC2 Configuration**
-- **Instance Type**: Configurable (default: t3.micro)
-- **AMI**: Latest Ubuntu 22.04 LTS (auto-detected) or custom AMI
-- **Storage**: 20GB encrypted GP3 volume
-- **Docker**: Automatically installed and configured on instance launch
-
-### **RDS Configuration**
-- **Engine**: Latest PostgreSQL version (auto-detected) or custom version
-- **Instance Class**: Configurable (default: db.t3.micro)
-- **Storage**: 20GB initial, auto-scaling to 100GB
-- **Security**: Private subnet, EC2-only access
-
----
-
-## 🔍 **Troubleshooting**
-
-### **Common Issues**
 - **AMI not found**: Let Terraform auto-detect latest Ubuntu, or set `use_custom_ami = true`
 - **S3 bucket name conflicts**: Names are automatically generated with random suffixes
 - **Insufficient permissions**: Ensure AWS credentials have required permissions
 - **SSH connection failed**: Ensure EC2 key pair exists and .pem file has correct permissions (400)
 
 
-### **Infrastructure Layer (This Step)**
-- ✅ VPC with public/private subnets
-- ✅ EC2 instance with Docker pre-installed and docker compose file created
-- ✅ S3 bucket for file storage
-- ✅ RDS PostgreSQL database
-- ✅ Security groups and IAM roles
-
-
----
 
 ## 🎉 **Setup Complete!**
 
@@ -528,7 +500,6 @@ Congratulations! You've successfully:
 - ✅ Deployed sample applications
 - ✅ Set up CI/CD ready environment
 
----
 
 
 ## 🆘 **Need Help?**
