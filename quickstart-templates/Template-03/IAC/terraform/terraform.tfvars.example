@@ -1,0 +1,90 @@
+# Define all the values for the variables in this file
+
+##################################################
+# Required for authentication to Azure
+##################################################
+# This is the subscription ID, can be found in subscriptions in azure portal or ask devops team
+subscription_id = "your-subscription-id"
+
+# This is the client ID, can be found in app registration in azure portal
+client_id = "your-client-id"
+
+# This is the client secret, can be found in Client credentials of app registration in azure portal
+client_secret = "your-client-secret"
+
+# This is the tenant ID, can be found in directory ID of the tenant in app registration in azure portal
+tenant_id = "your-tenant-id"
+
+##################################################
+# Common variables
+##################################################
+# this would be used for naming all the resources, give a short name for the application, no special characters, no spaces, no uppercase, no numbers, no hyphens, no dashes
+app_name = "myapp"
+
+# all the resources will be created in this location/region, checkout this doc for more supported locations - https://learn.microsoft.com/en-us/azure/reliability/regions-list
+location = "eastus"
+
+##################################################
+# These tags will be applied to all the resources
+##################################################
+tags = {
+  Company     = "Promact"
+  CreatedBy   = "saquib"
+  Project     = "promact-reusability-initiative"
+  Environment = "dev"
+  # Do not add new properties here, if you need to add new properties, ask devops team first
+}
+
+##################################################
+# For Virtual Network
+##################################################
+# CIDR block for Virtual Network, it should be unique and not overlapping with any other VNet in the same subscription, it must be in format x.x.x.x/16, example - "10.0.0.0/16, 10.1.0.0/16, 10.2.0.0/16, ..... 10.255.0.0/16"
+vnet_cidr = "10.20.0.0/16"
+
+##################################################
+# For Virtual Machine
+##################################################
+# Syntax - "sku_tiername", for example - "Standard_B1s" (B series, 1 vCPUs, 1 GB RAM), "Standard_1ms" (B series, 1 vCPUs, 2 GB RAM), "Standard_B2s" (B series, 2 vCPUs, 4 GB RAM), "Standard_B4s" (B series, 4 vCPUs, 16 GB RAM), "Standard_B8s" (B series, 8 vCPUs, 16 GB RAM), "Standard_B16s" (B series, 16 vCPUs, 32 GB RAM), "Standard_B32s" (B series, 32 vCPUs, 64 GB RAM), "Standard_B64s" (B series, 64 vCPUs, 128 GB RAM). 
+# For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
+vm_size = "Standard_B2s"
+
+# When you created an ssh key pair, you will get a private and public key, you need to use the public key here, paste the full public key, NOT the path
+ssh_public_key = "your-public-key"
+
+# This is the version of the VM image, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/linux/endorsed-distros
+# ONLY linux vms can be created using this template, windows vms are not supported
+vm_image_version = "ubuntu-24_04-lts"
+
+##################################################
+# For PostgreSQL server
+##################################################
+# This is the version of the PostgreSQL server, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-supported-versions
+# ONLY postgresql server can be created using this template, other databases are not supported, always use the latest version supported by azure
+# Dont use in preview versions of the database, at the time of writing this, the latest version is 17
+postgres_version = "17"
+
+# The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3)
+# For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-compute
+# eg - "B1ms" (B series, 1 vCPUs, 1 GB RAM), "B2ms" (B series, 2 vCPUs, 4 GB RAM)
+postgres_sku_name = "B_Standard_B1ms"
+
+# The storage performance tier for the PostgreSQL server, related to IOPS
+# Possible values are P4, P6, P10, P15,P20, P30,P40, P50,P60, P70 or P80
+# Pick atleast P10 for decent performance
+postgres_storage_tier = "P10"
+
+# The storage size for the PostgreSQL server in MB, it must be in the range of 1024.
+# Check this out for more details - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-storage
+# Minimum starting from 32768 MB
+postgres_storage_mb = 32768
+
+# The firewall rule for the PostgreSQL server
+# To allow only your ip then set both the start and end ip address to your ip address -> example - "122.122.122.122"
+# If you want to allow all ips (not recommended for production) then set start and end ip address to "0.0.0.0" and "255.255.255.255" respectively.
+# For adding more ip addresses, go to azure portal and add the ip addresses to the firewall rule in postgresql server network settings.
+
+# The start IP address for the PostgreSQL server firewall rule
+postgres_server_firewall_allowed_start_ip_address = "0.0.0.0"
+
+# The end IP address for the PostgreSQL server firewall rule
+postgres_server_firewall_allowed_end_ip_address = "255.255.255.255"
