@@ -1,6 +1,6 @@
 # Template 03 - Deploy Frontend and Backend to Azure VM, Managed DB, Storage Account
 
-This template creates a complete, production-ready Azure infrastructure along with a CI/CD pipeline, seamlessly integrating with your existing frontend and backend repositories.
+This template creates a complete, development-ready Azure infrastructure along with a CI/CD pipeline, seamlessly integrating with your existing frontend and backend repositories.
 
 **The following Azure services will be created using this template:**
 
@@ -22,90 +22,11 @@ Before starting, ensure you have all the required software and configurations in
 
 This includes:
 
-- Azure Account with administrator access
+- Azure account with an active subscription
 - Basic Git knowledge and command line experience
-- Azure CLI installed and configured
+- Azure CLI installed and configured (login to Azure CLI or ask DevOps team for details)
 - Terraform CLI installed and working
-- Service Principal or App Registration with Contributor access over subscription
-
-**Azure CLI Installation and Configuration**
-
-**Install Azure CLI:**
-
-**For Windows:**
-
-1. Download the Azure CLI installer from [https://aka.ms/installazurecliwindows](https://aka.ms/installazurecliwindows)
-2. Run the installer and follow the installation wizard
-3. Restart your command prompt or PowerShell
-
-**Alternative for Windows (using Chocolatey):**
-
-```bash
-choco install azure-cli
-```
-
-**Alternative for Windows (using Scoop):**
-
-```bash
-scoop install azure-cli
-```
-
-**For Linux:**
-
-```bash
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-```
-
-**For macOS:**
-
-```bash
-brew install azure-cli
-```
-
-**Configure Azure CLI:**
-
-1. **Login to Azure:**
-
-   ```bash
-   az login
-   ```
-
-   This will open a browser window for you to authenticate with your Azure account.
-
-2. **Set your subscription (if you have multiple):**
-
-   ```bash
-   az account list --output table
-   az account set --subscription "your-subscription-id"
-   ```
-
-3. **Verify your configuration:**
-   ```bash
-   az account show
-   ```
-
-**Service Principal Requirements**:
-You need to create a Service Principal (App Registration) in Azure Active Directory with Contributor role access over your subscription. This is required for Terraform to authenticate and create resources in your Azure subscription.
-
-**To create a Service Principal:**
-
-1. Go to Azure Portal > Azure Active Directory > App registrations
-2. Click "New registration"
-3. Provide a name for your application
-4. Click "Register"
-5. Note down the Application (client) ID and Directory (tenant) ID
-6. Go to "Certificates & secrets" > "New client secret"
-7. Create a new secret and note down the value
-8. Go to your Subscription > Access control (IAM) > Add role assignment
-9. Select "Contributor" role and assign it to your App Registration
-
-**Alternative: Create Service Principal using Azure CLI:**
-
-```bash
-az ad sp create-for-rbac --name "terraform-sp" --role="Contributor" --scopes="/subscriptions/your-subscription-id"
-```
-
-This command will output the client ID, client secret, and tenant ID that you'll need for Terraform.
+- Service Principal or App Registration with Contributor access over subscription (ask DevOps team for subscription and Service Principal details)
 
 ---
 
@@ -161,41 +82,7 @@ cat ~/.ssh/azure-vm-key.pub
 - Keep your private key secure (never share it)
 - The private key will be used to SSH into your Azure VM
 
-### Step 2: Install Terraform on Windows
-
-**Download and Install Terraform:**
-
-1. **Download Terraform:**
-
-   - Go to [https://www.terraform.io/downloads.html](https://www.terraform.io/downloads.html)
-   - Download the Windows 64-bit version
-   - Extract the terraform.exe file to a folder (e.g., C:\terraform)
-
-2. **Add Terraform to PATH:**
-
-   - Open System Properties > Environment Variables
-   - Under System Variables, find and select "Path", then click "Edit"
-   - Click "New" and add the path where you extracted terraform.exe (e.g., C:\terraform)
-   - Click "OK" to save
-
-3. **Verify Installation:**
-   ```bash
-   terraform version
-   ```
-
-**Alternative Installation using Chocolatey (if you have Chocolatey installed):**
-
-```bash
-choco install terraform
-```
-
-**Alternative Installation using Scoop (if you have Scoop installed):**
-
-```bash
-scoop install terraform
-```
-
-### Step 3: Create Azure Infrastructure Using Terraform
+### Step 2: Create Azure Infrastructure Using Terraform
 
 **Start Terraform Deployment**
 
@@ -263,151 +150,105 @@ Ensure you have completed the Azure CLI setup from the Prerequisites section bef
 
 **Terraform Variables Configuration**
 
-**Azure Authentication Configuration**
+**Edit terraform.tfvars with your project details:**
 
-- **Subscription ID**: Your Azure subscription ID (found in Azure Portal > Subscriptions)
-- **Client ID**: Application (client) ID from your Service Principal
-- **Client Secret**: Client secret value from your Service Principal
-- **Tenant ID**: Directory (tenant) ID from your Service Principal
+**Copy the terraform.tfvars.example content and paste it into terraform.tfvars:**
 
-**Virtual Network Configuration**
+```bash
+# Define all the values for the variables in this file
 
-- **CIDR Block**: Customizable VNet subnet ranges (must be /16 format)
-- **Location**: Azure region for resource deployment
-- **Security Groups**: Ports 22 (SSH), 80 (HTTP), 443 (HTTPS)
+##################################################
+# Required for authentication to Azure
+##################################################
+# This is the subscription ID, can be found in subscriptions in azure portal or ask devops team
+subscription_id = "your-subscription-id"
 
-**Storage Account Configuration**
+# This is the client ID, can be found in app registration in azure portal
+client_id = "your-client-id"
 
-- **Account Name**: Automatically generated with random suffix
-- **Access Control**: Public and private containers
-- **Replication**: Locally Redundant Storage (LRS)
-- **Account Tier**: Standard performance tier
+# This is the client secret, can be found in Client credentials of app registration in azure portal
+client_secret = "your-client-secret"
 
-**Virtual Machine Configuration**
+# This is the tenant ID, can be found in directory ID of the tenant in app registration in azure portal
+tenant_id = "your-tenant-id"
 
-- **VM Size**: Configurable (default: Standard_B2s - 2 vCPUs, 4GB RAM)
-- **Image**: Latest Ubuntu 24.04 LTS
-- **Storage**: Standard SSD managed disk
-- **Docker**: Automatically installed and configured on instance launch
-- **SSH Access**: Uses your provided public key
+##################################################
+# Common variables
+##################################################
+# this would be used for naming all the resources, give a short name for the application, no special characters, no spaces, no uppercase, no numbers, no hyphens, no dashes
+app_name = "myapp"
 
-**PostgreSQL Flexible Server Configuration**
+# all the resources will be created in this location/region, checkout this doc for more supported locations - https://learn.microsoft.com/en-us/azure/reliability/regions-list
+location = "eastus"
 
-- **Version**: Latest PostgreSQL version (configurable, default: 17)
-- **SKU**: Configurable (default: B_Standard_B1ms - 1 vCPU, 2GB RAM)
-- **Storage**: Configurable starting from 32GB, auto-scaling enabled
-- **Security**: Firewall rules for IP-based access control
-- **Extensions**: Vector extension enabled for modern applications
+##################################################
+# These tags will be applied to all the resources
+##################################################
+tags = {
+  Company     = "Promact"
+  CreatedBy   = "saquib"
+  Project     = "promact-reusability-initiative"
+  Environment = "dev"
+  # Do not add new properties here, if you need to add new properties, ask devops team first
+}
 
-  **Edit terraform.tfvars with your project details:**
+##################################################
+# For Virtual Network
+##################################################
+# CIDR block for Virtual Network, it should be unique and not overlapping with any other VNet in the same subscription, it must be in format x.x.x.x/16, example - "10.0.0.0/16, 10.1.0.0/16, 10.2.0.0/16, ..... 10.255.0.0/16"
+vnet_cidr = "10.20.0.0/16"
 
-  **Copy the terraform.tfvars.example content and paste it into terraform.tfvars:**
+##################################################
+# For Virtual Machine
+##################################################
+# Syntax - "sku_tiername", for example - "Standard_B1s" (B series, 1 vCPUs, 1 GB RAM), "Standard_1ms" (B series, 1 vCPUs, 2 GB RAM), "Standard_B2s" (B series, 2 vCPUs, 4 GB RAM), "Standard_B4s" (B series, 4 vCPUs, 16 GB RAM), "Standard_B8s" (B series, 8 vCPUs, 16 GB RAM), "Standard_B16s" (B series, 16 vCPUs, 32 GB RAM), "Standard_B32s" (B series, 32 vCPUs, 64 GB RAM), "Standard_B64s" (B series, 64 vCPUs, 128 GB RAM).
+# For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
+vm_size = "Standard_B2s"
 
-  ```bash
-  # Define all the values for the variables in this file
+# When you created an ssh key pair, you will get a private and public key, you need to use the public key here, paste the full public key, NOT the path
+ssh_public_key = "your-public-key"
 
-  ##################################################
-  # Required for authentication to Azure
-  ##################################################
-  # This is the subscription ID, can be found in subscriptions in azure portal or ask devops team
-  subscription_id = "your-subscription-id"
+# This is the version of the VM image, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/linux/endorsed-distros
+# ONLY linux vms can be created using this template, windows vms are not supported
+vm_image_version = "ubuntu-24_04-lts"
 
-  # This is the client ID, can be found in app registration in azure portal
-  client_id = "your-client-id"
+##################################################
+# For PostgreSQL server
+##################################################
+# This is the version of the PostgreSQL server, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-supported-versions
+# ONLY postgresql server can be created using this template, other databases are not supported, always use the latest version supported by azure
+# Dont use in preview versions of the database, at the time of writing this, the latest version is 17
+postgres_version = "17"
 
-  # This is the client secret, can be found in Client credentials of app registration in azure portal
-  client_secret = "your-client-secret"
+# The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3)
+# For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-compute
+# eg - "B1ms" (B series, 1 vCPUs, 1 GB RAM), "B2ms" (B series, 2 vCPUs, 4 GB RAM)
+postgres_sku_name = "B_Standard_B1ms"
 
-  # This is the tenant ID, can be found in directory ID of the tenant in app registration in azure portal
-  tenant_id = "your-tenant-id"
+# The storage performance tier for the PostgreSQL server, related to IOPS
+# Possible values are P4, P6, P10, P15,P20, P30,P40, P50,P60, P70 or P80
+# Pick atleast P10 for decent performance
+postgres_storage_tier = "P10"
 
-  ##################################################
-  # Common variables
-  ##################################################
-  # this would be used for naming all the resources, give a short name for the application, no special characters, no spaces, no uppercase, no numbers, no hyphens, no dashes
-  app_name = "myapp"
+# The storage size for the PostgreSQL server in MB, it must be in the range of 1024.
+# Check this out for more details - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-storage
+# Minimum starting from 32768 MB
+postgres_storage_mb = 32768
 
-  # all the resources will be created in this location/region, checkout this doc for more supported locations - https://learn.microsoft.com/en-us/azure/reliability/regions-list
-  location = "eastus"
+# The firewall rule for the PostgreSQL server
+# To allow only your ip then set both the start and end ip address to your ip address -> example - "122.122.122.122"
+# If you want to allow all ips (not recommended for production) then set start and end ip address to "0.0.0.0" and "255.255.255.255" respectively.
+# For adding more ip addresses, go to azure portal and add the ip addresses to the firewall rule in postgresql server network settings.
 
-  ##################################################
-  # These tags will be applied to all the resources
-  ##################################################
-  tags = {
-    Company     = "Promact"
-    CreatedBy   = "saquib"
-    Project     = "promact-reusability-initiative"
-    Environment = "dev"
-    # Do not add new properties here, if you need to add new properties, ask devops team first
-  }
+# The start IP address for the PostgreSQL server firewall rule
+postgres_server_firewall_allowed_start_ip_address = "0.0.0.0"
 
-  ##################################################
-  # For Virtual Network
-  ##################################################
-  # CIDR block for Virtual Network, it should be unique and not overlapping with any other VNet in the same subscription, it must be in format x.x.x.x/16, example - "10.0.0.0/16, 10.1.0.0/16, 10.2.0.0/16, ..... 10.255.0.0/16"
-  vnet_cidr = "10.20.0.0/16"
+# The end IP address for the PostgreSQL server firewall rule
+postgres_server_firewall_allowed_end_ip_address = "255.255.255.255"
+```
 
-  ##################################################
-  # For Virtual Machine
-  ##################################################
-  # Syntax - "sku_tiername", for example - "Standard_B1s" (B series, 1 vCPUs, 1 GB RAM), "Standard_1ms" (B series, 1 vCPUs, 2 GB RAM), "Standard_B2s" (B series, 2 vCPUs, 4 GB RAM), "Standard_B4s" (B series, 4 vCPUs, 16 GB RAM), "Standard_B8s" (B series, 8 vCPUs, 16 GB RAM), "Standard_B16s" (B series, 16 vCPUs, 32 GB RAM), "Standard_B32s" (B series, 32 vCPUs, 64 GB RAM), "Standard_B64s" (B series, 64 vCPUs, 128 GB RAM).
-  # For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
-  vm_size = "Standard_B2s"
-
-  # When you created an ssh key pair, you will get a private and public key, you need to use the public key here, paste the full public key, NOT the path
-  ssh_public_key = "your-public-key"
-
-  # This is the version of the VM image, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/virtual-machines/linux/endorsed-distros
-  # ONLY linux vms can be created using this template, windows vms are not supported
-  vm_image_version = "ubuntu-24_04-lts"
-
-  ##################################################
-  # For PostgreSQL server
-  ##################################################
-  # This is the version of the PostgreSQL server, you can check the latest version from this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-supported-versions
-  # ONLY postgresql server can be created using this template, other databases are not supported, always use the latest version supported by azure
-  # Dont use in preview versions of the database, at the time of writing this, the latest version is 17
-  postgres_version = "17"
-
-  # The name of the SKU, follows the tier + name pattern (e.g. B_Standard_B1ms, GP_Standard_D2s_v3, MO_Standard_E4s_v3)
-  # For more details, checkout this doc - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-compute
-  # eg - "B1ms" (B series, 1 vCPUs, 1 GB RAM), "B2ms" (B series, 2 vCPUs, 4 GB RAM)
-  postgres_sku_name = "B_Standard_B1ms"
-
-  # The storage performance tier for the PostgreSQL server, related to IOPS
-  # Possible values are P4, P6, P10, P15,P20, P30,P40, P50,P60, P70 or P80
-  # Pick atleast P10 for decent performance
-  postgres_storage_tier = "P10"
-
-  # The storage size for the PostgreSQL server in MB, it must be in the range of 1024.
-  # Check this out for more details - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-storage
-  # Minimum starting from 32768 MB
-  postgres_storage_mb = 32768
-
-  # The firewall rule for the PostgreSQL server
-  # To allow only your ip then set both the start and end ip address to your ip address -> example - "122.122.122.122"
-  # If you want to allow all ips (not recommended for production) then set start and end ip address to "0.0.0.0" and "255.255.255.255" respectively.
-  # For adding more ip addresses, go to azure portal and add the ip addresses to the firewall rule in postgresql server network settings.
-
-  # The start IP address for the PostgreSQL server firewall rule
-  postgres_server_firewall_allowed_start_ip_address = "0.0.0.0"
-
-  # The end IP address for the PostgreSQL server firewall rule
-  postgres_server_firewall_allowed_end_ip_address = "255.255.255.255"
-  ```
-
-  **Update the following values in terraform.tfvars:**
-
-  - Replace `your-subscription-id` with your Azure subscription ID
-  - Replace `your-client-id` with your Service Principal client ID
-  - Replace `your-client-secret` with your Service Principal client secret
-  - Replace `your-tenant-id` with your Azure tenant ID
-  - Replace `your-public-key` with the SSH public key content you copied earlier
-  - Update `app_name` with your preferred application name
-  - Update other values as needed for your environment
-
-4. **Terraform Commands:**
-
+4. **Terraform Commands:**  
+   Note: Run these commands in the directory where tf files are present    
    **Initialize Terraform:**
 
    ```bash
