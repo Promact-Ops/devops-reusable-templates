@@ -1,5 +1,5 @@
-## Template 04 - Deploy Frontend and Backend to Azure Container Apps, Managed DB, Storage Account
+# Complete ACA deployment process
 
-_Description goes here..._
-
----
+### step 1: Go to infra dir and follow all the steps in readme
+### step 2: Go to aca dir and follow all the steps in readme
+### step 3: Go to pipelines dir and follow all the steps in readme
