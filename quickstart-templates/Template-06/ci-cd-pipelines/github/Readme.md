@@ -66,6 +66,7 @@ github-backend/
 * The folder and service names **must match** those defined in the workflows.
 * Both pipelines automatically pull the latest code and rebuild containers on each push.
 * CI/CD pipelines will remain same for all type of frameworks as container is build from dockerfile that is provided by deployer
+### For CI/CD Sample refrences please visit here - https://github.com/Promact-Ops/devops-docker-templates/tree/jaydeep-template-6/sample-repos
 
 ---
 
