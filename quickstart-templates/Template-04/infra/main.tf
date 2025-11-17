@@ -13,7 +13,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-    name     = "${var.project_name}-${var.environment}-rg"
+    name     = "${var.resource_group_name}"
     location = var.location
 }
 
@@ -84,7 +84,7 @@ resource "azurerm_container_app_environment" "aca_env" {
 
 ## PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "postgresql" {
-    name                   = "${var.project_name}-${var.environment}-flexibleserver"
+    name                   = "${var.project_name}${var.environment}flexibleserver"
     resource_group_name    = azurerm_resource_group.rg.name
     location               = azurerm_resource_group.rg.location
     
@@ -105,19 +105,9 @@ resource "azurerm_postgresql_flexible_server" "postgresql" {
 
 
     public_network_access_enabled = false
-    # public_network_access_enabled = true
+
 
 }
-
-# # PostgreSQL Firewall Rules (for development - allow Azure services)
-# resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure_services" {
-#   name             = "AllowAzureServices"
-#   server_id        = azurerm_postgresql_flexible_server.postgresql.id
-#   start_ip_address = "103.178.154.17"
-#   end_ip_address   = "103.178.154.17"
-# }
-
-
 
 # Subnet for PostgreSQL Private Endpoint
 resource "azurerm_subnet" "postgresql_private_endpoint_subnet" {
@@ -177,19 +167,6 @@ data "azuread_user" "current" {
 
 
 
-# # Set Entra ID Administrator for PostgreSQL User - Assigned Managed Identity
-# resource "azurerm_postgresql_flexible_server_active_directory_administrator" "postgres_user_admin" {
-#   server_name         = azurerm_postgresql_flexible_server.postgresql.name
-#   resource_group_name = azurerm_resource_group.rg.name
-#   tenant_id           = data.azurerm_client_config.current.tenant_id
-#   object_id           = data.azuread_client_config.current.object_id
-#   principal_name      = data.azuread_user.current.user_principal_name
-#   principal_type      = "User"
-
-#     depends_on = [
-#         azurerm_postgresql_flexible_server.postgresql
-#     ]
-# }
 
 
 
@@ -211,7 +188,7 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "po
 
 # User-Assigned Managed Identity for Container App (better control than system-assigned)
 resource "azurerm_user_assigned_identity" "aca_identity" {
-  name                = "${var.project_name}-${var.environment}-aca-identity"
+    name                = "${var.project_name}-${var.environment}-aca-identity"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   
@@ -219,24 +196,30 @@ resource "azurerm_user_assigned_identity" "aca_identity" {
 
 
 # Output Managed Identity details
-output "aca_identity_client_id" {
-  value       = azurerm_user_assigned_identity.aca_identity.client_id
-  description = "Client ID of the ACA Managed Identity"
-}
-
-output "aca_identity_principal_id" {
-  value       = azurerm_user_assigned_identity.aca_identity.principal_id
-  description = "Principal ID of the ACA Managed Identity"
-}
-
-output "aca_identity_name" {
-  value = azurerm_user_assigned_identity.aca_identity.name
-  description = "Name ACA Managed Identity"
+output "aca_identity" {
+  value       = azurerm_user_assigned_identity.aca_identity
+  description = "Managed Identity"
 }
 
 # Output PostgreSQL Flexible Server details
-output "postgresql_flexible_server_fqdn" {
-  value       = azurerm_postgresql_flexible_server.postgresql.fqdn
-  description = "FQDN of the PostgreSQL Flexible Server"
+output "postgresql_flexible_server" {
+  value       = azurerm_postgresql_flexible_server.postgresql
+  description = "PostgreSQL Flexible Server"
 }
 
+output "aca_environment" {
+  value       = azurerm_container_app_environment.aca_env
+  description = "Container Apps Environment"
+  
+}
+
+output "vnet_id_and_subnets" {
+  value       = {
+    vnet = azurerm_virtual_network.vnet
+    aca_infra_subnet = azurerm_subnet.aca_infra_subnet
+    aca_app_subnet = azurerm_subnet.aca_app_subnet
+    postgresql_private_endpoint_subnet = azurerm_subnet.postgresql_private_endpoint_subnet
+  }
+  description = "Virtual Network ID"
+  
+}

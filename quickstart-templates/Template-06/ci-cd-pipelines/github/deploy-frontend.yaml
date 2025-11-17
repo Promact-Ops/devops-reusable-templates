@@ -25,13 +25,12 @@ jobs:
       - name: 🚢 Deploy Frontend via Docker Compose
         run: |
           echo "Deploying Frontend on VPS..."
-          ssh -o StrictHostKeyChecking=no azureuser@${{ secrets.VPS_IP }} << 'EOF'
-            cd /home/ubuntu/_my_project-development-server
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.VPS_IP }} << 'EOF'
+            cd /home/ubuntu/_my_project-development-server/frontend
             echo "Pulling latest changes..."
             sudo git fetch origin main && sudo git reset --hard origin/main
-
+            cd ..
             echo "Rebuilding frontend container..."
             sudo docker-compose up -d --build --force-recreate --no-deps frontend
-
             echo "✅ Frontend deployed successfully!"
           EOF

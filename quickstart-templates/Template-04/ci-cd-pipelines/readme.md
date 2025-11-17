@@ -4,12 +4,14 @@
 
 ### 1. Add Workflows to Your Repository
 
+#### NOTE:  This pipelines are framework agnostic supports all frameworks 
+
 Copy the workflow files to your repository:
 ```
 .github/
 └── workflows/
-    ├── frontend-deploy.yml
-    └── backend-deploy.yml
+    ├── frontend-deploy.yml     #### for frontend 
+    └── backend-deploy.yml       #### for backend 
 ```
 
 ### 2. Configure GitHub Secrets

@@ -1,5 +1,7 @@
 # 🚀 CI/CD Deployment – Dockerized Frontend & Backend
 
+### Goto repository - https://github.com/Promact-Ops/devops-docker-templates > scripts > setup_template-06.sh
+
 This repository includes automated deployment pipelines for **frontend** and **backend** services using **GitHub Actions** and **Docker Compose** on an Ubuntu VPS.
 
 ---
@@ -7,15 +9,19 @@ This repository includes automated deployment pipelines for **frontend** and **b
 ## 📁 Project Structure
 
 ```
-.github/
+.github/  ## for frontend
  └── workflows/
       ├── deploy-frontend.yml   # Deploys only the frontend service
-      └── deploy-backend.yml    # Deploys only the backend service
-_home/
+.github/  ## for backend
+ └── workflows/
+      ├── deploy-backend.yml   # Deploys only the backend service
+########################################################################
+github-frontend/
  └── ubuntu/_my_project-development-server/
       ├── frontend/[your code and dockerfile]
+github-backend/
+ └── ubuntu/_my_project-development-server/
       ├── backend/[your code and dockerfile]
-      └── docker-compose.yml
 ```
 
 ---
@@ -50,6 +56,7 @@ _home/
 | ----------------- | ------------------------------------------------------------------------------ |
 | `VPS_IP`          | Public IP address of your VPS                                                  |
 | `VPS_PRIVATE_KEY` | SSH private key (matches public key in `/home/azureuser/.ssh/authorized_keys`) |
+| `VPS_USERNAME`    | VPS Username                                                                   |
 
 ---
 
@@ -58,6 +65,7 @@ _home/
 * Ensure `docker-compose.yml` exists on VPS at `/home/ubuntu/_my_project-development-server/`.
 * The folder and service names **must match** those defined in the workflows.
 * Both pipelines automatically pull the latest code and rebuild containers on each push.
+* CI/CD pipelines will remain same for all type of frameworks as container is build from dockerfile that is provided by deployer
 
 ---
 

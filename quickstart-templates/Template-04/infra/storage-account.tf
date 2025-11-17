@@ -3,7 +3,16 @@
 # ============================================
 
 resource "azurerm_storage_account" "storage" {
-  name                     = "${var.project_name}${var.environment}storage${random_string.storage_suffix.result}"
+  name                     = substr(
+    regexreplace(
+      lower("${var.project_name}${var.environment}storage${random_string.storage_suffix.result}"),
+      "[^a-z0-9]",
+      ""
+    ),
+    0,
+    24
+  )
+
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -152,21 +161,18 @@ resource "azurerm_role_assignment" "aca_storage_table_contributor" {
 # Outputs for Reference
 # ============================================
 
-output "storage_account_name" {
-  value       = azurerm_storage_account.storage.name
-  description = "Storage Account Name"
-}
-
-output "storage_account_url" {
-  value       = azurerm_storage_account.storage.primary_blob_endpoint
-  description = "Storage Account Blob Endpoint"
-}
-
-output "storage_containers" {
+output "storage_details" {
   value = {
-    test_files = azurerm_storage_container.test_container.name
-    uploads    = azurerm_storage_container.uploads_container.name
-    logs       = azurerm_storage_container.logs_container.name
+    account = {
+      full_resource          = azurerm_storage_account.storage
+      name                   = azurerm_storage_account.storage.name
+      primary_blob_endpoint  = azurerm_storage_account.storage.primary_blob_endpoint
+    }
+    containers = {
+      test_files = azurerm_storage_container.test_container.name
+      uploads    = azurerm_storage_container.uploads_container.name
+      logs       = azurerm_storage_container.logs_container.name
+    }
   }
-  description = "Created Storage Containers"
+  description = "Storage account with all related containers and endpoints"
 }

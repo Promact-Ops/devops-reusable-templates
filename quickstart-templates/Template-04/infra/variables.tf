@@ -12,6 +12,13 @@ variable "location" {
   
 }
 
+variable "resource_group_name" {
+    description = "The name of the Resource Group"
+    type        = string
+    
+  
+}
+
 variable "project_name" {
     description = "The name of the project"
     type        = string
