@@ -171,6 +171,8 @@ View deployment status in:
 
 ## 🚦 Pipeline Status Badges
 
+### For CI/CD Sample please visit here - https://github.com/Promact-Ops/devops-docker-templates/tree/jaydeep-template-6/sample-repos
+
 Add to your main README:
 
 ```markdown

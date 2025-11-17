@@ -107,11 +107,11 @@ terraform output -json > outputs.json
 
 | Variable | Type | Description | Default |
 |----------|------|-------------|---------|
-| `azurerm_virtual_network_address_space` | list(string) | VNet address space | `["10.10.0.0/16"]` |
-| `azurerm_subnet_aca_infra_subnet_cidr` | list(string) | Container Apps infrastructure subnet | `["10.10.0.0/23"]` |
-| `azurerm_subnet_aca_app_subnet_cidr` | list(string) | Container Apps application subnet | `["10.10.2.0/24"]` |
-| `azurerm_subnet_postgresql_private_endpoint_subnet_cidr` | list(string) | PostgreSQL private endpoint subnet | `["10.10.3.0/28"]` |
-| `azurerm_subnet_storage_private_endpoint_subnet_cidr` | list(string) | Storage private endpoint subnet | `["10.10.4.0/28"]` |
+| `azurerm_virtual_network_address_space` | list(string) | VNet address space (sample) | `["10.0.0.0/24"]` |
+| `azurerm_subnet_aca_infra_subnet_cidr` | list(string) | Container Apps infrastructure subnet (sample) | `["10.0.0.0/24"]` |
+| `azurerm_subnet_aca_app_subnet_cidr` | list(string) | Container Apps application subne (sample) | `["10.0.0.0/24"]` |
+| `azurerm_subnet_postgresql_private_endpoint_subnet_cidr` | list(string) | PostgreSQL private endpoint subnet (sample) | `["10.0.0.0/24"]` |
+| `azurerm_subnet_storage_private_endpoint_subnet_cidr` | list(string) | Storage private endpoint subnet (sample) | `["10.0.0.0/24"]` |
 
 ### Tags Variable
 
