@@ -43,7 +43,7 @@ cd your-terraform-directory
 
 Create a `terraform.tfvars` file with your configuration:
 
-#### NOTE : please go through the Azure networking existing configration and also go through the azure networking documentation to ensure no errors on deployment
+#### NOTE : please go through the Azure networking existing configration and also go through the azure naming, networking and other related documentation to ensure no errors on deployment
 
 ```hcl
 # Required Variables
