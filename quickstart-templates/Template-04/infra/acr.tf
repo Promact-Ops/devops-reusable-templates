@@ -27,13 +27,3 @@ resource "azurerm_role_assignment" "aca_acr_pull" {
   principal_id         = azurerm_user_assigned_identity.aca_identity.principal_id
 }
 
-# Output ACR details
-output "acr_login_server" {
-  value       = azurerm_container_registry.acr.login_server
-  description = "ACR Login Server URL"
-}
-
-output "acr_name" {
-  value       = azurerm_container_registry.acr.name
-  description = "ACR Name"
-}

@@ -156,23 +156,3 @@ resource "azurerm_role_assignment" "aca_storage_table_contributor" {
 }
 
 
-
-# ============================================
-# Outputs for Reference
-# ============================================
-
-output "storage_details" {
-  value = {
-    account = {
-      full_resource         = azurerm_storage_account.storage
-      name                  = azurerm_storage_account.storage.name
-      primary_blob_endpoint = azurerm_storage_account.storage.primary_blob_endpoint
-    }
-    containers = {
-      test_files = azurerm_storage_container.test_container.name
-      uploads    = azurerm_storage_container.uploads_container.name
-      logs       = azurerm_storage_container.logs_container.name
-    }
-  }
-  description = "Storage account with all related containers and endpoints"
-}

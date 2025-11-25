@@ -194,32 +194,3 @@ resource "azurerm_user_assigned_identity" "aca_identity" {
 
 }
 
-
-# Output Managed Identity details
-output "aca_identity" {
-  value       = azurerm_user_assigned_identity.aca_identity
-  description = "Managed Identity"
-}
-
-# Output PostgreSQL Flexible Server details
-output "postgresql_flexible_server" {
-  value       = azurerm_postgresql_flexible_server.postgresql
-  description = "PostgreSQL Flexible Server"
-}
-
-output "aca_environment" {
-  value       = azurerm_container_app_environment.aca_env
-  description = "Container Apps Environment"
-
-}
-
-output "vnet_id_and_subnets" {
-  value = {
-    vnet                               = azurerm_virtual_network.vnet
-    aca_infra_subnet                   = azurerm_subnet.aca_infra_subnet
-    aca_app_subnet                     = azurerm_subnet.aca_app_subnet
-    postgresql_private_endpoint_subnet = azurerm_subnet.postgresql_private_endpoint_subnet
-  }
-  description = "Virtual Network ID"
-
-}
