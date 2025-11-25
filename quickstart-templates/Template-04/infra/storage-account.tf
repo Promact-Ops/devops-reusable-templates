@@ -3,7 +3,7 @@
 # ============================================
 
 resource "azurerm_storage_account" "storage" {
-  name                     = substr(
+  name = substr(
     regexreplace(
       lower("${var.project_name}${var.environment}storage${random_string.storage_suffix.result}"),
       "[^a-z0-9]",
@@ -17,20 +17,20 @@ resource "azurerm_storage_account" "storage" {
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  
+
   # Security best practices
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  public_network_access_enabled   = false  # Private endpoint only
-  
+  public_network_access_enabled   = false # Private endpoint only
+
   # Enable blob versioning and soft delete
   blob_properties {
     versioning_enabled = true
-    
+
     delete_retention_policy {
       days = 7
     }
-    
+
     container_delete_retention_policy {
       days = 7
     }
@@ -164,9 +164,9 @@ resource "azurerm_role_assignment" "aca_storage_table_contributor" {
 output "storage_details" {
   value = {
     account = {
-      full_resource          = azurerm_storage_account.storage
-      name                   = azurerm_storage_account.storage.name
-      primary_blob_endpoint  = azurerm_storage_account.storage.primary_blob_endpoint
+      full_resource         = azurerm_storage_account.storage
+      name                  = azurerm_storage_account.storage.name
+      primary_blob_endpoint = azurerm_storage_account.storage.primary_blob_endpoint
     }
     containers = {
       test_files = azurerm_storage_container.test_container.name

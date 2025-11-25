@@ -1,0 +1,54 @@
+# Azure Configuration
+subscribtion_id = "your-subscription-id" # set it yours this just a example
+location        = "West US" # set it yours this just a example
+
+# Project Configuration
+project_name = "myproject" # set it yours this just a example
+environment  = "prod" # set it yours this just a example
+app_name     = "myapp" # set it yours this just a example
+
+# Resource Group
+azurerm_resource_group_name = "myproject-prod-rg" # set it yours this just a example
+
+# Container App Environment
+azurerm_container_app_environment_id = "/subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RG/providers/Microsoft.App/managedEnvironments/YOUR_ENV"
+azurerm_container_app_environment_aca_env_default_domain = "your-env-domain.azurecontainerapps.io" # set it yours this just a example
+
+# Identity Configuration
+azurerm_user_assigned_identity_id = "/subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/YOUR_IDENTITY" # set it yours this just a example
+aca_identity_name                 = "myproject-prod-aca-identity" # set it yours this just a example
+aca_identity_name_client_id       = "your-identity-client-id" # set it yours this just a example
+
+# Container Registry
+azurerm_container_registry_login_server = "yourregistry.azurecr.io" # set it yours this just a example
+
+# Storage Account
+storage_account_name                      = "mystorageaccount" # set it yours this just a example
+storage_account_endpoint                  = "https://mystorageaccount.blob.core.windows.net/" # set it yours this just a example
+storage_account_container_name            = "app-files" # set it yours this just a example
+storage_account_uploads_container_name    = "uploads" # set it yours this just a example
+
+# PostgreSQL
+postgresql_fqdn = "myproject-prod-flexibleserver.postgres.database.azure.com" # set it yours this just a example
+
+# Frontend Configuration
+frontend_container_image                    = "yourregistry.azurecr.io/frontend:latest" # set it yours this just a example
+frontend_aca_min_replicas                   = 1 # set it yours this just a example
+frontend_aca_max_replicas                   = 5 # set it yours this just a example
+frontend_cpu                                = 0.5 # set it yours this just a example
+frontend_memory                             = "1Gi" # set it yours this just a example
+frontend_scaling_cpu_threshold              = 70 # set it yours this just a example
+frontend_scaling_memory_threshold           = 70 # set it yours this just a example
+frontend_scaling_http_requests_threshold    = 1000 # set it yours this just a example
+frontend_app_port                           = 80 # set it yours this just a example
+
+# Backend Configuration
+backend_container_image                     = "yourregistry.azurecr.io/backend:latest" # set it yours this just a example
+backend_aca_min_replicas                    = 1 # set it yours this just a example
+backend_aca_max_replicas                    = 5 # set it yours this just a example
+backend_cpu                                 = 0.5 # set it yours this just a example
+backend_memory                              = "1Gi" # set it yours this just a example
+backend_scaling_cpu_threshold               = 70 # set it yours this just a example
+backend_scaling_memory_threshold            = 70 # set it yours this just a example
+backend_scaling_http_requests_threshold     = 1000 # set it yours this just a example
+backend_app_port                            = 8080 # set it yours this just a example

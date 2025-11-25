@@ -1,0 +1,24 @@
+#### NOTE : please go through the Azure networking existing configration and also go through the azure naming, networking and other related documentation to ensure no errors on deployment
+
+# Required Variables
+subscribtion_id = "your-azure-subscription-id" # set it yours this just a example
+resource_group_name = "your-resource-group-name" # set it yours this just a example
+tenant_id       = "tenant_id" # set it yours this just a example
+project_name    = "myapp" # set it yours this just a example
+environment     = "prod" # set it yours this just a example
+location        = "West US" # set it yours this just a example
+app_name        = "my-application" # set it yours this just a example
+
+# Network Configuration
+azurerm_virtual_network_address_space                   = ["10.0.0.0/24"] # set it yours this just a example and will not works as it is
+azurerm_subnet_aca_infra_subnet_cidr                   = ["10.0.0.0/24"] # set it yours this just a example and will not works as it is
+azurerm_subnet_aca_app_subnet_cidr                     = ["10.0.0.0/24"] # set it yours this just a example and will not works as it is
+azurerm_subnet_postgresql_private_endpoint_subnet_cidr = ["10.0.0.0/24"] # set it yours this just a example and will not works as it is
+azurerm_subnet_storage_private_endpoint_subnet_cidr    = ["10.0.0.0/24"] # set it yours this just a example and will not works as it is
+
+# Tags
+tags = {
+  Project     = "MyApplication" # set it yours this just a example 
+  Environment = "Production" # set it yours this just a example 
+  ManagedBy   = "Terraform" # set it yours this just a example 
+}

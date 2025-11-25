@@ -1,4 +1,4 @@
-# Complete ACA deployment process
+# 🚀 Template 06 - Complete ACA environment deployment process
 
 ## Go to infra directory and follow this process
 
@@ -223,22 +223,14 @@ Both zones are linked to the VNet with automatic registration.
 
 ## Important Notes
 
-### Tenant ID Configuration
-
-The PostgreSQL configuration includes a hardcoded tenant ID:
-```hcl
-tenant_id = "6204282d-c27d-434a-82cb-330432f1de26"
-```
-
-**Action Required:** Update this with your actual Azure Tenant ID in `main.tf` (line 97) or make it a variable.
-
 ### Security Considerations
 
 1. **No Default Values in Production**: Always use `terraform.tfvars` and never commit it to version control
 2. **Subscription ID**: Treat as sensitive - use environment variables or secure secret management
-3. **Network Planning**: Ensure CIDR blocks don't overlap with existing networks
-4. **PostgreSQL Access**: Currently configured for managed identity only - no SQL authentication
-5. **Firewall Rules**: Commented out in the code - uncomment if you need specific IP allowlisting
+3. **Tenant ID**: Treat as sensitive - use environment variables or secure secret management
+4. **Network Planning**: Ensure CIDR blocks don't overlap with existing networks
+5. **PostgreSQL Access**: Currently configured for managed identity only - no SQL authentication
+6. **Firewall Rules**: Commented out in the code - uncomment if you need specific IP allowlisting
 
 ### Commented Resources
 
@@ -413,7 +405,9 @@ For issues related to:
 ---
 ---
 
-# Go to aca directory and follow this steps
+# 🚀 Template 06 - Complete ACA apps deployment process 
+
+## Go to aca directory and follow this steps
 
 # Azure Container Apps Terraform Configuration
 
@@ -620,8 +614,8 @@ Resources follow this naming pattern:
 ```
 
 **Examples:**
-- Frontend: `myproject-prod-aca-frontend-app`
-- Backend: `myproject-prod-aca-backend-app`
+- Frontend: `myproject-prod-aca-frontend-app` (public)
+- Backend: `myproject-prod-aca-backend-app` (private)
 
 ## Security Considerations
 
@@ -742,16 +736,169 @@ terraform destroy
 - [Terraform AzureRM Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
 - [Azure Managed Identity](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/)
 
-## Support
 
-For issues or questions:
-1. Check Azure Container Apps logs in Azure Portal
-2. Review Terraform plan output for configuration issues
-3. Verify all prerequisite resources exist and are accessible
-4. Ensure managed identity has required permissions
 
 ---
 ---
 
 
 
+# GitHub Actions - CI/CD Pipelines
+
+## 🚀 Quick Setup
+
+### 1. Add Workflows to Your Repository
+
+#### NOTE:  This pipelines are framework agnostic supports all frameworks 
+
+Copy the workflow files to your repository:
+```
+.github/
+└── workflows/
+    ├── app-deploy.yml     #### for frontend or backend
+```
+
+### 2. Configure GitHub Secrets
+
+Go to **Settings → Secrets and variables → Actions** and add:
+
+| Secret Name | Description | How to Get |
+|------------|-------------|------------|
+| `ACR_LOGIN_SERVER` | Container Registry URL | `yourregistry.azurecr.io` |
+| `ACR_USERNAME` | Registry username | Portal → ACR → Access keys → Username |
+| `ACR_PASSWORD` | Registry password | Portal → ACR → Access keys → Password |
+| `AZURE_CREDENTIALS` | Service Principal JSON | See below ⬇️ |
+| `FRONTEND_CONTAINER_APP_NAME` | Frontend app name | `myproject-prod-aca-frontend-app` |
+| `BACKEND_CONTAINER_APP_NAME` | Backend app name | `myproject-prod-aca-backend-app` |
+| `RESOURCE_GROUP_NAME` | Resource group | `myproject-prod-rg` |
+
+### 3. Create Azure Service Principal
+
+```bash
+az ad sp create-for-rbac \
+  --name "github-actions-sp" \
+  --role contributor \
+  --scopes /subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RESOURCE_GROUP \
+  --sdk-auth
+```
+
+Copy the JSON output to `AZURE_CREDENTIALS` secret.
+
+### 4. Enable ACR Admin User
+
+```bash
+az acr update --name yourregistry --admin-enabled true
+```
+
+## 📁 Project Structure
+
+Your repository should have:
+```
+your-repo/
+├── .github/
+│   └── workflows/
+│       ├── frontend-or-backend-deploy.yml
+└── frontend or backend/
+    ├── Dockerfile
+    └── (your code)
+```
+
+## 🎯 How It Works
+
+### Pipeline (`frontend-deploy.yml`)
+1. **Triggers** on:
+   - Push to `main` or `develop` branches
+   - Manual trigger
+2. **Builds** Docker image from `./frontend` or ./backend
+3. **Pushes** to ACR with tags: `latest`, `main-<sha>`, `<branch>`
+4. **Deploys** to Frontend Container App
+
+
+
+## ✅ Verify Setup
+
+1. **Check Workflows**: Actions tab in GitHub
+2. **Manual Trigger**: Actions → Workflow → Run workflow
+3. **View Logs**: Click on any workflow run
+4. **Verify Deployment**: 
+   ```bash
+   az containerapp show \
+     --name YOUR_APP_NAME \
+     --resource-group YOUR_RG \
+     --query "properties.latestRevisionName"
+   ```
+
+## 🔧 Customization
+
+### Change Trigger Branches
+```yaml
+on:
+  push:
+    branches: [ main, staging, production ]  # Add your branches
+```
+
+### Add Environment Variables
+```yaml
+- name: Deploy to Azure Container Apps
+  uses: azure/CLI@v2
+  with:
+    inlineScript: |
+      az containerapp update \
+        --name ${{ env.CONTAINER_APP_NAME }} \
+        --resource-group ${{ env.RESOURCE_GROUP }} \
+        --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+        --set-env-vars "KEY=VALUE" "ANOTHER_KEY=VALUE"
+```
+
+
+
+## 🛠️ Troubleshooting
+
+### ❌ ACR Authentication Failed
+- Verify `ACR_USERNAME` and `ACR_PASSWORD` are correct
+- Ensure admin user is enabled on ACR
+
+### ❌ Azure Login Failed
+- Check `AZURE_CREDENTIALS` format (must be valid JSON)
+- Verify Service Principal has Contributor role
+- Ensure Service Principal isn't expired
+
+### ❌ Container App Update Failed
+- Confirm Container App name is correct
+- Check Service Principal has permissions on Container App
+- Verify image exists in ACR: `az acr repository show-tags -n yourregistry --repository frontend`
+
+
+## 📊 Deployment Status
+
+View deployment status in:
+- **GitHub**: Repository → Actions tab
+- **Azure Portal**: Container Apps → Revisions
+- **CLI**:
+  ```bash
+  az containerapp revision list \
+    --name YOUR_APP_NAME \
+    --resource-group YOUR_RG \
+    --output table
+  ```
+
+## 🔒 Security Best Practices
+
+- ✅ Use Service Principal with minimal required permissions
+- ✅ Enable branch protection rules
+- ✅ Require pull request reviews for production
+- ✅ Set up environment approvals for sensitive deployments
+- ✅ Rotate ACR credentials regularly
+- ✅ Use GitHub Environments for production deployments
+
+## 🚦 Pipeline Status Badges
+
+### For CI/CD Sample please visit here - https://raw.githubusercontent.com/Promact-Ops/devops-reusable-templates/refs/heads/main/ci-cd-pipelines/github-actions/deploy-acr-to-container-apps.yml
+
+
+## 🆘 **Need Help?**
+
+If you encounter any issues:
+
+1. **Check Prerequisites**: Ensure all requirements are met
+2. **Contact DevOps Team**: Reach out for additional support

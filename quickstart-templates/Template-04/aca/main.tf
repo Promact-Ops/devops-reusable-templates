@@ -1,15 +1,15 @@
 terraform {
-    required_providers {
-        azurerm = {
-        source  = "hashicorp/azurerm"
-        version = "~> 4.0"
-        }
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
     }
+  }
 }
 
 provider "azurerm" {
-    features {}
-    subscription_id = var.subscribtion_id
+  features {}
+  subscription_id = var.subscribtion_id
 }
 
 
@@ -43,27 +43,27 @@ resource "azurerm_container_app" "frontend_app" {
 
     custom_scale_rule {
       custom_rule_type = "cpu"
-      name = "cpu-scaling"
+      name             = "cpu-scaling"
       metadata = {
-        type          = "Utilization"
-        value         = var.frontend_scaling_cpu_threshold
+        type  = "Utilization"
+        value = var.frontend_scaling_cpu_threshold
       }
     }
 
     custom_scale_rule {
-      name = "memory-scaling"
+      name             = "memory-scaling"
       custom_rule_type = "memory"
 
       metadata = {
-        type          = "Utilization"
-        value         = var.frontend_scaling_memory_threshold
+        type  = "Utilization"
+        value = var.frontend_scaling_memory_threshold
       }
     }
 
 
     http_scale_rule {
-      name = "http-scaling"
-      concurrent_requests = 1000  # Target concurrent requests per instance      
+      name                = "http-scaling"
+      concurrent_requests = 1000 # Target concurrent requests per instance      
     }
 
     container {
@@ -134,31 +134,31 @@ resource "azurerm_container_app" "frontend_app" {
 
 
       liveness_probe {
-        transport                   = "HTTP"
-        port                        = var.frontend_app_port
-        path                        = "/health"
-        initial_delay               = 10
-        interval_seconds            = 30
-        timeout                     = 5
-        failure_count_threshold     = 3
+        transport               = "HTTP"
+        port                    = var.frontend_app_port
+        path                    = "/health"
+        initial_delay           = 10
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
       }
 
       readiness_probe {
-        transport                   = "HTTP"
-        port                        = var.frontend_app_port
-        path                        = "/health"
-        initial_delay               = 10
-        interval_seconds            = 30
-        timeout                     = 5
-        failure_count_threshold     = 3
+        transport               = "HTTP"
+        port                    = var.frontend_app_port
+        path                    = "/health"
+        initial_delay           = 10
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
       }
     }
   }
 
   ingress {
-    external_enabled = true  # Frontend is public
+    external_enabled = true # Frontend is public
     target_port      = var.frontend_app_port
-    
+
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -166,13 +166,10 @@ resource "azurerm_container_app" "frontend_app" {
   }
 
   depends_on = [
-    azurerm_container_app.backend_app  # Ensure backend is created first
+    azurerm_container_app.backend_app # Ensure backend is created first
   ]
 }
 
-output "frontend_fqdn" {
-  value = azurerm_container_app.frontend_app.ingress
-}
 
 
 
@@ -203,37 +200,37 @@ resource "azurerm_container_app" "backend_app" {
     min_replicas = var.backend_aca_min_replicas
     max_replicas = var.backend_aca_max_replicas
 
-    
+
 
     custom_scale_rule {
       custom_rule_type = "cpu"
-      name = "cpu-scaling"
+      name             = "cpu-scaling"
       metadata = {
-        type          = "Utilization"
-        value         = var.backend_scaling_cpu_threshold
+        type  = "Utilization"
+        value = var.backend_scaling_cpu_threshold
       }
     }
 
     custom_scale_rule {
-      name = "memory-scaling"
+      name             = "memory-scaling"
       custom_rule_type = "memory"
 
       metadata = {
-        type          = "Utilization"
-        value         = var.backend_scaling_memory_threshold
+        type  = "Utilization"
+        value = var.backend_scaling_memory_threshold
       }
     }
 
 
     http_scale_rule {
-      name = "http-scaling"
-      concurrent_requests = var.backend_scaling_http_requests_threshold    
+      name                = "http-scaling"
+      concurrent_requests = var.backend_scaling_http_requests_threshold
     }
 
 
     container {
       name   = "backend-api"
-      image  = var.backend_container_image  # Replace with your actual backend image
+      image  = var.backend_container_image # Replace with your actual backend image
       cpu    = var.backend_cpu
       memory = var.backend_memory
 
@@ -296,32 +293,32 @@ resource "azurerm_container_app" "backend_app" {
 
       # Health probes
       liveness_probe {
-        transport                   = "HTTP"
-        port                        = var.backend_app_port
-        path                        = "/health"
-        initial_delay               = 10
-        interval_seconds            = 30
-        timeout                     = 5
-        failure_count_threshold     = 3
+        transport               = "HTTP"
+        port                    = var.backend_app_port
+        path                    = "/health"
+        initial_delay           = 10
+        interval_seconds        = 30
+        timeout                 = 5
+        failure_count_threshold = 3
       }
 
       readiness_probe {
-        transport                   = "HTTP"
-        port                        = var.backend_app_port
-        path                        = "/ready"
-        initial_delay               = 5
-        interval_seconds            = 10
-        timeout                     = 3
-        failure_count_threshold     = 3
+        transport               = "HTTP"
+        port                    = var.backend_app_port
+        path                    = "/ready"
+        initial_delay           = 5
+        interval_seconds        = 10
+        timeout                 = 3
+        failure_count_threshold = 3
       }
     }
   }
 
   # Internal ingress only (NOT exposed to internet)
   ingress {
-    external_enabled = false  # This makes it internal-only
+    external_enabled = false # This makes it internal-only
     target_port      = var.backend_app_port
-    
+
     traffic_weight {
       percentage      = 100
       latest_revision = true
