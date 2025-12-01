@@ -65,22 +65,30 @@ chmod +x setup_template-06.sh
 
 After successfully deploying your infrastructure in VPS:
 
-#### **Step 4: Set Up GitHub Secrets and Variables**
+---
+
+## **Frontend and Backend Deployment Setup**: 
+#### **Step 1: Set Up GitHub Secrets and Variables**
 
 1. **Go to Your Frontend Repository:**
    - Navigate to Settings → Secrets and variables → Actions
    - Create the required **secrets** (3):
-     - `SERVER_SSH_KEY` - Your VPS access key file content
-     - `SERVER_HOST` - VPS IP 
-     - `SERVER_USER` - `username`
-     - `PROJECT_PATH` - path at which your project is deployed
+     - `SERVER_SSH_KEY` - Your .pem file content
+     - `SERVER_HOST` - From VPS
+     - `SERVER_USER` - From VPS
+   - Create the required **variables** (4):
+     - `FRONTEND_PATH` - From VPS
+     - `BACKEND_PATH` - From VPS
+     - `DOCKER_COMPOSE_PATH` - From VPS
+     - `FRONTEND_APP_ENV` - Your app environment variables
 
 2. **Go to Your Backend Repository:**
    - Repeat the same process for backend repository
    - Use the same secret values but different variable values if needed
 
 
-#### **Step 5: Clone Sample Code Repository**
+
+#### **Step 2: Clone Sample Code Repository**
 
 📚 **Sample Code Repository Reference**
 
@@ -90,7 +98,7 @@ After setting up your GitHub secrets and variables, you'll need to clone sample 
 
 **What's Available:**
 - **Frontend Templates**: Next.js, Vite, React, Vue.js
-- **Backend Templates**: Node.js, Python FastAPI, .NET
+- **Backend Templates**: Node.js, Python FastAPI, .NET, Java
 - **Docker Compose Files**: Ready-to-use configurations (copied during infrastructure creation)
 - **Sample Applications**: Complete working examples
 
@@ -105,13 +113,13 @@ sample-repos/
 │   ├── python-fastapi/  # Python FastAPI backend
 │   ├── nodejs-express/  # Node.js Express backend
 │   └── ...
-|── docker-compose-templates/
-|    └── docker-compose-Template-01.yml
-└── scripts/
-    └── setup_template-06.sh
+└── docker-compose-templates/
+    └── docker-compose-template-01.yml
 ```
 
-> **⚠️ Important**: If you customize the deploy commands used in the `.github/workflows` files, first refer to the comments in the Docker Compose file: [docker-compose-Template-01.yml](https://github.com/Promact-Ops/devops-docker-templates/blob/main/docker-compose-templates/docker-compose-Template-01.yml)
+> **💡 Pro Tip**: This repository contains production-ready templates that you can customize for your specific needs. The Docker Compose files are already configured to work with the infrastructure you just created.
+
+> **⚠️ Important**: If you customize the deploy commands used in the `.github/workflows` files, first refer to the comments in the Docker Compose file: [docker-compose-template-01.yml](https://github.com/Promact-Ops/devops-docker-templates/blob/main/docker-compose-templates/docker-compose-template-01.yml)
 
 **Clone the sample code repository:**
 ```bash
@@ -125,7 +133,7 @@ cd devops-docker-templates/sample-repos
 
 ---
 
-#### **Step 6: Set Up Frontend Repository**
+#### **Step 3: Set Up Frontend Repository**
 
 **Navigate to your preferred frontend framework:**
 
@@ -147,7 +155,7 @@ cp Dockerfile /path/to/your/frontend-repo/
 mkdir -p /path/to/your/frontend-repo/.github/workflows
 
 # Copy the workflow file
-cp .github/workflows/template-01-frontend-deploy.yml /path/to/your/frontend-repo/.github/workflows/
+cp .github/workflows/template-03-frontend-deploy.yml /path/to/your/frontend-repo/.github/workflows/
 ```
 
 **This ensures the exact same directory structure in your repository:**
@@ -155,7 +163,7 @@ cp .github/workflows/template-01-frontend-deploy.yml /path/to/your/frontend-repo
 your-frontend-repo/
 ├── .github/
 │   └── workflows/
-│       └── template-01-frontend-deploy.yml
+│       └── template-03-frontend-deploy.yml
 ├── Dockerfile
 ├── src/
 └── ...
@@ -163,7 +171,7 @@ your-frontend-repo/
 
 **Customize Your Configuration:**
 
-**1. Workflow File (`template-01-frontend-deploy.yml`):**
+**1. Workflow File (`template-03-frontend-deploy.yml`):**
    - **You can rename the file** to any name you prefer (e.g., `deploy.yml`, `ci-cd.yml`, `production-deploy.yml`)
    - **Open the file** and you'll see:
      ```yaml
@@ -195,7 +203,7 @@ your-frontend-repo/
 
 ---
 
-#### **Step 7: Set Up Backend Repository**
+#### **Step 4: Set Up Backend Repository**
 
 **Navigate to your preferred backend framework:**
 
@@ -217,7 +225,7 @@ cp Dockerfile /path/to/your/backend-repo/
 mkdir -p /path/to/your/backend-repo/.github/workflows
 
 # Copy the workflow file
-cp .github/workflows/template-06-backend-deploy.yml /path/to/your/backend-repo/.github/workflows/
+cp .github/workflows/template-06-backend-deploy.yaml /path/to/your/backend-repo/.github/workflows/
 ```
 
 **This ensures the exact same directory structure in your repository:**
@@ -225,7 +233,7 @@ cp .github/workflows/template-06-backend-deploy.yml /path/to/your/backend-repo/.
 your-backend-repo/
 ├── .github/
 │   └── workflows/
-│       └── template-06-backend-deploy.yml
+│       └── template-06-backend-deploy.yaml
 ├── Dockerfile
 ├── src/
 └── ...
@@ -233,7 +241,7 @@ your-backend-repo/
 
 **Customize Your Configuration:**
 
-**1. Workflow File (`template-06-backend-deploy.yml`):**
+**1. Workflow File (`template-06-backend-deploy.yaml`):**
    - **You can rename the file** to any name you prefer (e.g., `deploy.yml`, `ci-cd.yml`, `production-deploy.yml`)
    - **Open the file** and you'll see:
      ```yaml
@@ -270,52 +278,16 @@ your-backend-repo/
 
 ---
 
-#### **Step 8: Push All Changes To Your Frontend and Backend Repo**
-
-**Before pushing your changes, follow these important cleanup steps:**
-
-
-**1. Remove Sensitive Configuration Files before pushing to remote repo**
-   
-   ###### Backup files on your local machine before removing (important for future updates - DO NOT PUSH TO REPO)
- 
-
-
-**2. Push All Changes to Your Repositories:**
-
-> **⚠️ Security Note**: Never commit sensitive files or folder to your repository. These contain sensitive information and should be kept secure locally.
-
+**Note**: 
+- The SSH key we created is not deleted because it's stored in the `~/.ssh` directory.
+- Your infrastructure code is now safely stored in your own repository's `Infrastructure` folder 
 
 ---
-#### **Step 9: Remove Cloned Repositories**
-
-**Return to directory where we clone the repository and remove the devops-docker-templates repository:**
-```bash
-rm -rf devops-docker-templates
-```
-
-**Return to directory where we clone the repository and remove the devops-reusable-templates repository:**
-```bash
-rm -rf devops-reusable-templates
-```
-
-
----
-
-### 🔍 **Troubleshooting Common Issues**
-
-
-- **Check VPS IP**
-- **Check VPS Username** 
-- **Check VPS AccessKey**
-
-
 
 ## 🎉 **Setup Complete!**
 
 Congratulations! You've successfully:
-- ✅ Created GitHub repositories
-- ✅ Deployed in VPS infrastructure
+- ✅ Deployed infrastructure
 - ✅ Configured GitHub secrets and variables
 - ✅ Deployed sample applications
 - ✅ Set up CI/CD ready environment
@@ -328,5 +300,3 @@ If you encounter any issues:
 
 1. **Check Prerequisites**: Ensure all requirements are met
 2. **Contact DevOps Team**: Reach out for additional support
-
-
