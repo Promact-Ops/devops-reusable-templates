@@ -26,34 +26,37 @@ This guide will walk you through setting up your environment and deploying your 
 
 > **📖 Detailed Guide**: Connect to VPS using (Host IP, Username and Access Key), once you are in VPS follow next steps.
 
+> **📖 Switch to root user**: ```sudo su```
+
 #### **Step 2: Download script using CURL OR Wget**
 
-> **📖 CURL Guide**: ```curl -o setup_template-06.sh https://raw.githubusercontent.com/Promact-Ops/devops-docker-templates/main/scripts/setup_template-06.sh```
+> **📖 CURL Guide**: ```curl -o setup_template-06.sh https://raw.githubusercontent.com/Promact-Ops/devops-docker-templates/refs/heads/jaydeep-template-6/scripts/setup_template-06.sh```
 
-> **📖 Wget Guide**: ```wget -O setup_template-06.sh https://raw.githubusercontent.com/Promact-Ops/devops-docker-templates/main/scripts/setup_template-06.sh```
+> **📖 Wget Guide**: ```wget -O setup_template-06.sh https://raw.githubusercontent.com/Promact-Ops/devops-docker-templates/refs/heads/jaydeep-template-6/scripts/setup_template-06.sh```
 
 #### **Step 3: Setup Environment variables and execute the script**
 
-###### - After downloading the script to VPS, run this command in VPS to set environment variables that will be used by script:
-
+######  After downloading the script to VPS, run this command in VPS to set environment variables that will be used by script:
+##### NOTE: Provide the values according to your VPS or cloud VPS provider
 ```
-sudo export PROJECT_NAME=myapp
-sudo export ENVIRONMENT=dev
-sudo export VPS_USER_NAME=(ubuntu or as provided by VPS provider)
+export PROJECT_NAME=
+export ENVIRONMENT=
+export VPS_USER_NAME=
 
 ## Verify
-sudo echo $PROJECT_NAME
-sudo echo $ENVIRONMENT
+echo $PROJECT_NAME
+echo $ENVIRONMENT
+echo $VPS_USER_NAME
 ```
 
 ###### - Then make script executable using this command:
 ```
-sudo chmod +x setup_template-06.sh
+chmod +x setup_template-06.sh
 ```
 
 ###### - Then execute the script using this command:
 ```
-sudo ./setup_template-06.sh
+./setup_template-06.sh
 ```
 
 ---
@@ -87,7 +90,7 @@ After setting up your GitHub secrets and variables, you'll need to clone sample 
 
 **What's Available:**
 - **Frontend Templates**: Next.js, Vite, React, Vue.js
-- **Backend Templates**: Node.js, Python FastAPI, .NET, Java
+- **Backend Templates**: Node.js, Python FastAPI, .NET
 - **Docker Compose Files**: Ready-to-use configurations (copied during infrastructure creation)
 - **Sample Applications**: Complete working examples
 
