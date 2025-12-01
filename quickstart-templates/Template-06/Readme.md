@@ -155,7 +155,7 @@ cp Dockerfile /path/to/your/frontend-repo/
 mkdir -p /path/to/your/frontend-repo/.github/workflows
 
 # Copy the workflow file
-cp .github/workflows/template-03-frontend-deploy.yml /path/to/your/frontend-repo/.github/workflows/
+cp .github/workflows/template-06-frontend-deploy.yaml /path/to/your/frontend-repo/.github/workflows/
 ```
 
 **This ensures the exact same directory structure in your repository:**
@@ -163,7 +163,7 @@ cp .github/workflows/template-03-frontend-deploy.yml /path/to/your/frontend-repo
 your-frontend-repo/
 ├── .github/
 │   └── workflows/
-│       └── template-03-frontend-deploy.yml
+│       └── template-06-frontend-deploy.yaml
 ├── Dockerfile
 ├── src/
 └── ...
@@ -171,7 +171,7 @@ your-frontend-repo/
 
 **Customize Your Configuration:**
 
-**1. Workflow File (`template-03-frontend-deploy.yml`):**
+**1. Workflow File (`template-06-frontend-deploy.yaml`):**
    - **You can rename the file** to any name you prefer (e.g., `deploy.yml`, `ci-cd.yml`, `production-deploy.yml`)
    - **Open the file** and you'll see:
      ```yaml
