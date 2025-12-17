@@ -1,665 +1,416 @@
-# 🚀 Template 02 - Deploy Frontend and Backend to AWS ECS, RDS, S3
+# AWS ECS Fargate Infrastructure with Terraform
 
-This template creates a complete, production-ready AWS infrastructure using ECS (Elastic Container Service) with support for both EC2 and Fargate launch types, along with a CI/CD pipeline that seamlessly integrates with your existing frontend and backend repositories.
+This Terraform configuration creates a complete AWS infrastructure for running containerized applications using **ECS Fargate** (serverless containers). It includes VPC, S3, ECS, Application Load Balancer, and RDS PostgreSQL database.
 
-## 📊 Cloud Services Overview
+## 🏗️ Architecture Overview
 
-The following cloud services will be created using this template:
+### Components Created
 
-| Service | Purpose | Details |
-|---------|---------|---------|
-| **VPC** | Network isolation | Public/private subnets, NAT Gateway, Internet Gateway |
-| **ECS Cluster** | Container orchestration | Supports both EC2 and Fargate launch types |
-| **Application Load Balancer** | Traffic distribution | Path-based routing for frontend/backend |
-| **ECR** | Container registry | Private Docker image repositories |
-| **S3** | File storage | Encrypted, versioned, IAM-controlled access |
-| **RDS** | Database | PostgreSQL with automated backups and monitoring |
-| **IAM** | Security | Task execution roles, service roles |
-| **CloudWatch** | Monitoring | Logs, metrics, and alarms |
-| **Security Groups** | Network security | ALB, ECS tasks, RDS access control |
+- **VPC**: Multi-AZ VPC with public and private subnets
+- **ECS Fargate**: Serverless container orchestration
+- **Application Load Balancer**: HTTP/HTTPS traffic routing
+- **RDS PostgreSQL**: Managed database with encryption and backups
+- **S3**: Encrypted bucket for application storage
+- **ECR**: Container image repositories
+- **CloudWatch**: Logging and monitoring with alarms
+- **Secrets Manager**: Secure database password storage
+- **Auto Scaling**: Automatic task scaling based on CPU/Memory
+
+### Network Architecture
+
+```
+Internet → ALB (Public Subnets) → ECS Tasks (Private Subnets) → RDS (Private Subnets)
+                                    ↓
+                                   NAT Gateway → Internet (for pulling images)
+```
 
 ## 📋 Prerequisites
 
-Before starting, ensure you have all the required software and configurations installed.
+1. **AWS Account** with appropriate permissions
+2. **Terraform** >= 1.0
+3. **AWS CLI** configured with credentials
+4. **Docker images** ready to push to ECR
+5. **(Optional)** SSL Certificate ARN for HTTPS
 
-**→ Complete Prerequisites Guide**
+## 🚀 Quick Start
 
-**Repository Requirements:** Ensure your existing frontend and backend repositories are already cloned locally for Infrastructure and CI/CD setup.
+### 1. Clone and Initialize
 
-This includes:
-
-- ✅ AWS Account with administrator access
-- ✅ Basic Git knowledge and command line experience
-- ✅ AWS CLI installed and configured
-- ✅ Terraform CLI installed and working
-- ✅ Docker installed locally (for testing)
-- ✅ GitHub account with repository access
-
----
-
-## 🚀 Quick Start Guide
-
-This guide will walk you through setting up your environment and deploying your applications to AWS ECS infrastructure.
-
-💡 **Pro Tip:** Each step builds on the previous one. Follow the process in order for the best experience.
-
----
-
-## Step 1: Create AWS Infrastructure Using Terraform
-
-### A. AWS CLI Configuration
-
-📖 **AWS CLI Configuration is covered in the Prerequisites Guide**
-
-Ensure you have completed the AWS CLI setup before proceeding with this step.
-
-### B. Clone the Repository
-
-**Using HTTPS:**
 ```bash
-git clone https://github.com/Promact-Ops/devops-reusable-templates.git
-```
+# Clone your repository
+git clone <your-repo-url>
+cd <repo-directory>
 
-**Using SSH (if you have SSH keys configured):**
-```bash
-git clone git@github.com:Promact-Ops/devops-reusable-templates.git
-```
-
-### C. Copy Terraform Files to Your Repository
-
-1. **Navigate to the Terraform directory:**
-```bash
-cd devops-reusable-templates/quickstart-templates/Template-02/IaC/terraform
-```
-
-2. **Copy the Terraform files to your existing backend/frontend repository:**
-   - Create an `Infrastructure` folder in your repository
-   - Copy all files from the terraform directory to your repository's Infrastructure folder
-   - This ensures you have the infrastructure code in your own repository for version control
-
-**Benefits:** Your infrastructure code stays with your application code, making it easier to manage changes and track infrastructure evolution.
-
-**Example structure in your repository:**
-```
-your-repo/
-├── Infrastructure/
-│   ├── main.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   ├── terraform.tfvars.example
-│   ├── vpc.tf
-│   ├── ecs.tf
-│   ├── alb.tf
-│   ├── ecr.tf
-│   ├── rds.tf
-│   ├── s3.tf
-│   └── iam.tf
-├── src/
-├── README.md
-└── ...
-```
-
-### D. Configure Variables
-
-1. **Navigate to your repository's Infrastructure folder:**
-```bash
-cd /path/to/your/repo/Infrastructure
-```
-
-2. **Copy the example variables file:**
-```bash
-cp terraform.tfvars.example terraform.tfvars
-```
-
-3. **Edit terraform.tfvars with your project details:**
-```bash
-vim terraform.tfvars
-```
-
-### 📋 Terraform Variables Options
-
-#### General Configuration
-- **Project Name:** Your project identifier
-- **Environment:** dev, staging, production
-- **AWS Region:** us-east-1, us-west-2, etc.
-
-#### VPC Configuration
-- **CIDR Block:** Customizable VPC and subnet ranges
-- **Availability Zones:** Multi-AZ deployment for high availability
-- **NAT Gateway:** Single or Multi-AZ NAT Gateway
-
-#### ECS Configuration
-- **Launch Type:** EC2, FARGATE, or BOTH
-- **EC2 Instance Type:** t3.micro, t3.small, t3.medium (if using EC2 launch type)
-- **Task CPU/Memory:** Configurable resources for containers
-- **Auto Scaling:** Min/max task counts, target CPU utilization
-- **Service Discovery:** Enable/disable AWS Cloud Map integration
-
-#### ECR Configuration
-- **Image Scanning:** Automated vulnerability scanning
-- **Image Retention:** Lifecycle policies for image management
-- **Encryption:** KMS encryption for images
-
-#### Application Load Balancer
-- **Health Check:** Path, interval, timeout configuration
-- **SSL/TLS:** Certificate ARN for HTTPS (optional)
-- **Routing:** Path-based routing rules
-
-#### RDS Configuration
-- **Engine:** PostgreSQL (latest version or custom)
-- **Instance Class:** db.t3.micro, db.t3.small, db.t3.medium
-- **Storage:** Initial size and auto-scaling limits
-- **Multi-AZ:** Enable for high availability
-- **Backup:** Retention period and backup window
-
-#### S3 Configuration
-- **Bucket Name:** Auto-generated with project name
-- **Versioning:** Enable/disable object versioning
-- **Encryption:** AES256 or KMS encryption
-
-### E. Initialize and Deploy
-
-1. **Initialize Terraform:**
-```bash
+# Initialize Terraform
 terraform init
 ```
 
-2. **Review the deployment plan:**
+### 2. Configure Variables
+
+Create a `terraform.tfvars` file:
+
+```hcl
+# Project Configuration
+project_name = "myapp"
+environment  = "production"
+aws_region   = "us-east-1"
+owner        = "DevOps Team"
+
+# VPC Configuration
+vpc_cidr                    = "10.0.0.0/16"
+availability_zone           = "us-east-1a"
+private_subnet_cidr         = "10.0.1.0/24"
+second_private_subnet_cidr  = "10.0.2.0/24"
+public_subnet_cidr          = "10.0.101.0/24"
+second_public_subnet_cidr   = "10.0.102.0/24"
+single_nat_gateway          = false  # Set true for cost savings in dev
+
+# ECS Fargate Configuration
+frontend_task_cpu     = "256"
+frontend_task_memory  = "512"
+backend_task_cpu      = "512"
+backend_task_memory   = "1024"
+frontend_desired_count = 2
+backend_desired_count  = 2
+
+# Auto Scaling
+enable_autoscaling         = true
+frontend_min_tasks         = 1
+frontend_max_tasks         = 10
+backend_min_tasks          = 1
+backend_max_tasks          = 10
+target_cpu_utilization     = 70
+target_memory_utilization  = 80
+
+# RDS Configuration
+rds_instance_class         = "db.t3.micro"
+rds_allocated_storage      = 20
+rds_max_allocated_storage  = 100
+rds_db_name                = "appdb"
+rds_username               = "dbadmin"
+rds_password               = "ChangeMe123!SecurePassword"  # Use strong password
+rds_multi_az               = true
+rds_backup_retention_period = 7
+
+# Health Check Configuration
+frontend_health_check_path = "/"
+backend_health_check_path  = "/health"
+health_check_interval      = 30
+health_check_timeout       = 5
+healthy_threshold          = 2
+unhealthy_threshold        = 3
+
+# HTTPS Configuration (Optional)
+enable_https    = false
+certificate_arn = ""  # Add your ACM certificate ARN
+
+# ECR Configuration
+ecr_image_retention_count = 10
+
+# Logging
+log_retention_days = 7
+
+# Common Tags
+common_tags = {
+  ManagedBy = "Terraform"
+  CostCenter = "Engineering"
+}
+```
+
+### 3. Plan and Apply
+
 ```bash
+# Review the planned changes
 terraform plan
-```
 
-3. **Deploy the infrastructure:**
-```bash
+# Apply the configuration
 terraform apply
+
+# Save important outputs
+terraform output > outputs.txt
 ```
 
-**Note:** This will ask for your approval to create the infrastructure. Enter `yes` to proceed.
-
-4. **Save the Output:**
-```bash
-terraform output github_secrets_setup_guide
-```
-
-### 🔄 What Happens Next?
-
-After successfully deploying your infrastructure with Terraform:
-
-1. **Save the Output:** Run `terraform output github_secrets_setup_guide` to get infrastructure details
-2. **Continue to Step 2:** Create GitHub Repositories
-3. **Prepare for Deployment:** Your ECS cluster will be ready to receive containers
-4. **Get Connection Details:** Use the outputs to configure your GitHub repositories
-
-**Key Outputs You'll Need:**
-- ECR Repository URLs for frontend and backend
-- Application Load Balancer DNS name
-- ECS Cluster name and service names
-- S3 Bucket details
-- RDS Endpoint and credentials
-
----
-
-## Step 2: Set Up GitHub Secrets and Variables
-
-### Go to Your Frontend Repository
-
-1. Navigate to **Settings → Secrets and variables → Actions**
-
-2. **Create the required secrets (5):**
-   - `AWS_ACCOUNT_ID` - Your AWS account ID
-   - `AWS_REGION` - AWS region (e.g., us-east-1)
-   - `AWS_ACCESS_KEY_ID` - AWS access key
-   - `AWS_SECRET_ACCESS_KEY` - AWS secret key
-   - `RDS_PASSWORD` - Database password from Terraform output
-
-3. **Create the required variables (6):**
-   - `ECR_FRONTEND_REPOSITORY` - From Terraform output
-   - `ECS_CLUSTER_NAME` - From Terraform output
-   - `ECS_FRONTEND_SERVICE` - From Terraform output
-   - `ECS_FRONTEND_TASK_DEFINITION` - From Terraform output
-   - `FRONTEND_APP_ENV` - Your app environment variables (JSON format)
-   - `S3_BUCKET_NAME` - From Terraform output
-
-### Go to Your Backend Repository
-
-1. Navigate to **Settings → Secrets and variables → Actions**
-
-2. **Create the required secrets (5):**
-   - Use the same AWS secrets as frontend
-   - `RDS_PASSWORD` - Database password from Terraform output
-
-3. **Create the required variables (7):**
-   - `ECR_BACKEND_REPOSITORY` - From Terraform output
-   - `ECS_CLUSTER_NAME` - From Terraform output
-   - `ECS_BACKEND_SERVICE` - From Terraform output
-   - `ECS_BACKEND_TASK_DEFINITION` - From Terraform output
-   - `RDS_ENDPOINT` - From Terraform output
-   - `RDS_DATABASE_NAME` - From Terraform output
-   - `S3_BUCKET_NAME` - From Terraform output
-
----
-
-## Step 3: Clone Sample Code Repository
-
-### 📚 Sample Code Repository Reference
-
-After setting up your GitHub secrets and variables, you'll need to clone sample code from the official repository:
-
-**Repository:** https://github.com/Promact-Ops/devops-docker-templates.git
-
-**What's Available:**
-- Frontend Templates: Next.js, Vite, React, Vue.js
-- Backend Templates: Node.js, Python FastAPI, .NET, Java
-- ECS Task Definitions: Ready-to-use configurations
-- Sample Applications: Complete working examples
-
-**Repository Structure:**
-```
-sample-repos/
-├── frontend/
-│   ├── nextjs/          # Next.js application
-│   ├── vite/            # Vite + React application
-│   └── ...
-├── backend/
-│   ├── python-fastapi/  # Python FastAPI backend
-│   ├── nodejs-express/  # Node.js Express backend
-│   └── ...
-└── ecs-task-definitions/
-    ├── frontend-task-def.json
-    └── backend-task-def.json
-```
-
-💡 **Pro Tip:** This repository contains production-ready templates that you can customize for your specific needs.
-
-**Clone the sample code repository:**
-```bash
-git clone https://github.com/Promact-Ops/devops-docker-templates.git
-cd devops-docker-templates/sample-repos
-```
-
----
-
-## Step 4: Set Up Frontend Repository
-
-### Navigate to Your Preferred Frontend Framework
-
-**Example: Next.js**
-```bash
-cd devops-docker-templates/sample-repos/frontend/nextjs
-```
-
-### Copy Required Files to Your Repository
-
-**1. Copy the Dockerfile:**
-```bash
-cp Dockerfile /path/to/your/frontend-repo/
-```
-
-**2. Copy the GitHub workflow file with exact directory structure:**
-```bash
-# Create the .github/workflows directory in your repository
-mkdir -p /path/to/your/frontend-repo/.github/workflows
-
-# Copy the workflow file
-cp .github/workflows/template-02-frontend-ecs-deploy.yml /path/to/your/frontend-repo/.github/workflows/
-```
-
-**This ensures the exact same directory structure in your repository:**
-```
-your-frontend-repo/
-├── .github/
-│   └── workflows/
-│       └── template-02-frontend-ecs-deploy.yml
-├── Dockerfile
-├── src/
-└── ...
-```
-
-### Customize Your Configuration
-
-**1. Workflow File (template-02-frontend-ecs-deploy.yml):**
-
-- You can rename the file to any name you prefer (e.g., `deploy.yml`, `ci-cd.yml`, `production-deploy.yml`)
-- Open the file and customize:
-
-```yaml
-name: Frontend ECS Deploy  # Change to your preferred name
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main  # Update to your branch name (dev, develop, staging, production)
-```
-
-**2. Dockerfile:**
-
-- This example is for Next.js projects - for other frameworks, check the sample repository
-- For Next.js projects, you can change the CMD value according to your package.json scripts:
-  - `CMD ["npm", "start"]` - for production builds
-  - `CMD ["npm", "run", "dev"]` - for development mode
-  - `CMD ["node", "server.js"]` - if you have a custom server
-
----
-
-## Step 5: Set Up Backend Repository
-
-### Navigate to Your Preferred Backend Framework
-
-**Example: Express.js**
-```bash
-cd devops-docker-templates/sample-repos/backend/nodejs-expressjs/
-```
-
-### Copy Required Files to Your Repository
-
-**1. Copy the Dockerfile:**
-```bash
-cp Dockerfile /path/to/your/backend-repo/
-```
-
-**2. Copy the GitHub workflow file with exact directory structure:**
-```bash
-# Create the .github/workflows directory in your repository
-mkdir -p /path/to/your/backend-repo/.github/workflows
-
-# Copy the workflow file
-cp .github/workflows/template-02-backend-ecs-deploy.yml /path/to/your/backend-repo/.github/workflows/
-```
-
-**This ensures the exact same directory structure in your repository:**
-```
-your-backend-repo/
-├── .github/
-│   └── workflows/
-│       └── template-02-backend-ecs-deploy.yml
-├── Dockerfile
-├── src/
-└── ...
-```
-
-### Customize Your Configuration
-
-**1. Workflow File (template-02-backend-ecs-deploy.yml):**
-
-- You can rename the file to any name you prefer
-- Open the file and customize:
-
-```yaml
-name: Backend ECS Deploy  # Change to your preferred name
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main  # Update to your branch name
-```
-
-**2. Dockerfile:**
-
-- Check the sample repository for framework-specific configurations
-- Update any framework-specific settings (e.g., project names, entry points)
-
----
-
-## Step 6: Push All Changes To Your Repositories
-
-### Before Pushing - Important Cleanup Steps
-
-**1. Remove Terraform Generated Files:**
-```bash
-# Remove the .terraform folder (generated by terraform init)
-rm -rf .terraform/
-
-# Remove .terraform.lock.hcl file if present
-rm -f .terraform.lock.hcl
-```
-
-**2. Remove Sensitive Configuration Files:**
-```bash
-# Backup terraform.tfvars file on your local machine before removing
-cp terraform.tfvars ~/terraform.tfvars.backup
-
-# Remove terraform.tfvars file (contains sensitive information)
-rm -f terraform.tfvars
-```
-
-**3. Keep Important Infrastructure Files:**
-```bash
-# DO NOT delete terraform.tfstate file - it contains all your infrastructure details
-# This file is essential for managing and updating your AWS resources
-# Keep it secure and backed up locally
-```
-
-💡 **Backup Note:** The terraform.tfvars.backup file contains your project configuration and will be useful when you need to add/update any configuration in your cloud resources in the future.
-
-**4. Copy Important Credentials (Important!):**
-Save these details in a secure location:
-- RDS endpoint, database name, username, password, port
-- ECR repository URLs
-- AWS Account ID and Region
-- S3 bucket names
-- Load Balancer DNS name
-
-**5. Push All Changes to Your Repositories:**
-
-⚠️ **Security Note:** Never commit sensitive files like `terraform.tfvars` or `.terraform/` folder to your repository.
-
----
-
-## Step 7: Remove Cloned Repositories
-
-Return to directory where we cloned the repositories and remove them:
+### 4. Build and Push Docker Images
 
 ```bash
-# Remove sample code repository
-rm -rf devops-docker-templates
+# Get ECR login credentials
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
 
-# Remove infrastructure templates repository
-rm -rf devops-reusable-templates
+# Build and push frontend
+docker build -t myapp-production-frontend ./frontend
+docker tag myapp-production-frontend:latest <frontend-ecr-url>:latest
+docker push <frontend-ecr-url>:latest
+
+# Build and push backend
+docker build -t myapp-production-backend ./backend
+docker tag myapp-production-backend:latest <backend-ecr-url>:latest
+docker push <backend-ecr-url>:latest
+
+# Force new deployment
+aws ecs update-service --cluster myapp-production-cluster --service myapp-production-frontend --force-new-deployment
+aws ecs update-service --cluster myapp-production-cluster --service myapp-production-backend --force-new-deployment
 ```
 
-**Note:** Your infrastructure code is now safely stored in your own repository's Infrastructure folder.
+## 📊 Key Features
 
----
+### 1. **Serverless with Fargate**
+- No EC2 instances to manage
+- Pay only for container resources used
+- Automatic scaling and patching
+- Ideal for variable workloads
 
-## 🎯 Architecture Overview
+### 2. **High Availability**
+- Multi-AZ deployment
+- Auto Scaling based on CPU/Memory
+- Health checks and automatic task replacement
+- Load balancer with cross-zone enabled
 
+### 3. **Security**
+- Private subnets for containers and database
+- Security groups with least privilege
+- Encrypted storage (S3, RDS, EBS)
+- Secrets Manager for sensitive data
+- VPC isolation
+
+### 4. **Monitoring**
+- CloudWatch Logs for all containers
+- Container Insights enabled
+- CloudWatch Alarms for:
+  - RDS CPU, Memory, Storage
+  - ALB response time and unhealthy targets
+  - Custom metrics available
+
+### 5. **Cost Optimization**
+- Fargate Spot support available
+- Auto Scaling to match demand
+- S3 lifecycle policies
+- ECR image cleanup policies
+
+## 🔧 Configuration Options
+
+### Task Sizing (CPU/Memory Combinations)
+
+Fargate supports specific CPU/Memory combinations:
+
+| CPU (vCPU) | Memory (GB) Options |
+|------------|---------------------|
+| 0.25       | 0.5, 1, 2          |
+| 0.5        | 1, 2, 3, 4         |
+| 1          | 2, 3, 4, 5, 6, 7, 8|
+| 2          | 4 to 16 (1GB incr) |
+| 4          | 8 to 30 (1GB incr) |
+
+### Environment-Specific Settings
+
+**Development:**
+```hcl
+single_nat_gateway     = true   # Cost savings
+rds_multi_az          = false  # Single AZ
+frontend_desired_count = 1
+backend_desired_count  = 1
+enable_autoscaling    = false
 ```
-                                    ┌─────────────────┐
-                                    │   Internet      │
-                                    └────────┬────────┘
-                                             │
-                                    ┌────────▼────────┐
-                                    │ Application     │
-                                    │ Load Balancer   │
-                                    └────────┬────────┘
-                                             │
-                        ┌────────────────────┼────────────────────┐
-                        │                    │                    │
-                 ┌──────▼──────┐      ┌─────▼──────┐      ┌─────▼──────┐
-                 │   Target    │      │   Target   │      │   Target   │
-                 │   Group     │      │   Group    │      │   Group    │
-                 │ (Frontend)  │      │ (Backend)  │      │  (Future)  │
-                 └──────┬──────┘      └─────┬──────┘      └─────┬──────┘
-                        │                    │                    │
-              ┌─────────┴─────────┐  ┌──────┴──────┐   ┌─────────┴──────┐
-              │                   │  │             │   │                │
-       ┌──────▼──────┐    ┌──────▼──▼──┐   ┌──────▼───▼──┐    ┌────────▼─────┐
-       │  ECS Task   │    │  ECS Task   │   │  ECS Task   │    │  ECS Task    │
-       │ (Frontend)  │    │ (Frontend)  │   │ (Backend)   │    │  (Backend)   │
-       │  Fargate/   │    │  Fargate/   │   │  Fargate/   │    │  Fargate/    │
-       │    EC2      │    │    EC2      │   │    EC2      │    │    EC2       │
-       └──────┬──────┘    └──────┬──────┘   └──────┬──────┘    └──────┬───────┘
-              │                  │                  │                  │
-              └──────────────────┴──────────────────┴──────────────────┘
-                                         │
-                        ┌────────────────┼────────────────┐
-                        │                │                │
-                 ┌──────▼──────┐  ┌─────▼──────┐  ┌──────▼──────┐
-                 │     RDS     │  │     S3     │  │  CloudWatch │
-                 │ (PostgreSQL)│  │  (Storage) │  │   (Logs)    │
-                 └─────────────┘  └────────────┘  └─────────────┘
+
+**Production:**
+```hcl
+single_nat_gateway     = false  # High availability
+rds_multi_az          = true   # Multi-AZ
+frontend_desired_count = 2
+backend_desired_count  = 2
+enable_autoscaling    = true
 ```
 
----
+## 📡 Accessing Your Application
 
-## 🔍 Troubleshooting Common Issues
+After deployment:
 
-### ECS Tasks Not Starting
-- Check CloudWatch logs for task errors
-- Verify ECR image exists and is accessible
-- Check task execution role permissions
-- Ensure security groups allow proper traffic
+```bash
+# Get ALB DNS name
+terraform output alb_dns_name
 
-### Load Balancer Health Checks Failing
-- Verify health check path is correct
-- Check if application is listening on correct port
-- Review security group rules
-- Check target group settings
+# Access frontend
+http://<alb-dns-name>
 
-### ECR Push Failures
-- Ensure AWS credentials are correct
-- Verify ECR repository exists
-- Check IAM permissions for ECR
-- Authenticate Docker to ECR
+# Access backend API
+http://<alb-dns-name>/api
 
-### Database Connection Issues
-- Verify RDS security group allows ECS tasks
-- Check database credentials
-- Ensure database is in private subnet
-- Verify connection string format
-
-### Insufficient Permissions
-- Ensure AWS credentials have required permissions
-- Check task execution role policies
-- Verify service role policies
-
----
-
-## 📊 Monitoring and Logging
-
-### CloudWatch Logs
-All ECS tasks automatically send logs to CloudWatch:
-- Log Group: `/ecs/{project-name}/{environment}`
-- Frontend Stream: `frontend/{task-id}`
-- Backend Stream: `backend/{task-id}`
-
-### CloudWatch Metrics
-Monitor your application with:
-- CPU Utilization
-- Memory Utilization
-- Request Count
-- Target Response Time
-- HTTP 4xx/5xx errors
-
-### Setting Up Alarms
-Create CloudWatch alarms for:
-- High CPU usage (> 80%)
-- High memory usage (> 80%)
-- Unhealthy target count
-- High 5xx error rate
-
----
+# Health check
+http://<alb-dns-name>/health
+```
 
 ## 🔐 Security Best Practices
 
-1. **Use Secrets Manager:** Store sensitive data in AWS Secrets Manager instead of environment variables
-2. **Enable VPC Flow Logs:** Monitor network traffic
-3. **Implement WAF:** Add AWS WAF for additional security
-4. **Use HTTPS:** Configure SSL/TLS certificates on ALB
-5. **Rotate Credentials:** Regularly rotate database passwords and access keys
-6. **Enable MFA:** Require MFA for AWS console access
-7. **Least Privilege:** Apply principle of least privilege for IAM roles
-8. **Scan Images:** Enable ECR image scanning for vulnerabilities
+1. **Secrets Management**
+   - Store RDS password in Secrets Manager (already configured)
+   - Use AWS Systems Manager Parameter Store for app configs
+   - Never commit secrets to version control
 
----
+2. **Network Security**
+   - Containers in private subnets (no direct internet access)
+   - Security groups with minimal permissions
+   - Use VPC endpoints for AWS services (optional improvement)
 
-## 🚀 Scaling Your Application
+3. **Database Security**
+   - Not publicly accessible
+   - Encrypted at rest
+   - Automated backups
+   - Change default passwords immediately
 
-### Auto Scaling Configuration
+4. **SSL/TLS**
+   ```hcl
+   enable_https = true
+   certificate_arn = "arn:aws:acm:region:account:certificate/xxx"
+   ```
 
-ECS Service Auto Scaling is configured based on:
-- **Target CPU Utilization:** Default 70%
-- **Min Tasks:** Configurable (default: 1)
-- **Max Tasks:** Configurable (default: 10)
+## 📈 Monitoring and Debugging
 
-### Manual Scaling
+### View Logs
 
-Update the desired count in Terraform:
-```hcl
-desired_count = 3  # Increase/decrease as needed
+```bash
+# Frontend logs
+aws logs tail /ecs/myapp-production --follow --filter-pattern "frontend"
+
+# Backend logs
+aws logs tail /ecs/myapp-production --follow --filter-pattern "backend"
 ```
 
-Then apply changes:
+### Check Service Status
+
 ```bash
+# List services
+aws ecs list-services --cluster myapp-production-cluster
+
+# Describe service
+aws ecs describe-services --cluster myapp-production-cluster --services myapp-production-frontend
+
+# List tasks
+aws ecs list-tasks --cluster myapp-production-cluster --service-name myapp-production-frontend
+```
+
+### Common Issues
+
+**Tasks failing to start:**
+- Check CloudWatch Logs for container errors
+- Verify ECR images exist and are accessible
+- Check task execution role permissions
+- Ensure sufficient CPU/Memory allocation
+
+**Database connection issues:**
+- Verify security group rules
+- Check RDS endpoint in task environment variables
+- Validate credentials in Secrets Manager
+
+**Images not pulling:**
+- Ensure NAT Gateway is properly configured
+- Check task execution role has ECR permissions
+- Verify private subnet routes to NAT Gateway
+
+## 💰 Cost Estimation
+
+**Monthly costs (approximate):**
+
+| Service | Configuration | Est. Cost |
+|---------|--------------|-----------|
+| ECS Fargate (2 tasks @ 0.5 vCPU, 1GB) | 24/7 | ~$35 |
+| ALB | 1 ALB | ~$20 |
+| NAT Gateway | 1 or 2 | ~$35-70 |
+| RDS (db.t3.micro) | Single-AZ | ~$15 |
+| RDS (db.t3.micro) | Multi-AZ | ~$30 |
+| Data Transfer | Varies | $10-50 |
+| **Total (Dev)** | | **~$115** |
+| **Total (Prod)** | | **~$150-180** |
+
+**Cost optimization tips:**
+- Use Fargate Spot for non-critical workloads (70% savings)
+- Single NAT Gateway for dev environments
+- Right-size tasks based on actual usage
+- Implement Auto Scaling to scale down during low traffic
+
+## 🔄 Updates and Maintenance
+
+### Update Task Definitions
+
+```bash
+# After code changes and new image push
+aws ecs update-service \
+  --cluster myapp-production-cluster \
+  --service myapp-production-frontend \
+  --force-new-deployment
+```
+
+### Scaling Services Manually
+
+```bash
+# Scale frontend to 5 tasks
+aws ecs update-service \
+  --cluster myapp-production-cluster \
+  --service myapp-production-frontend \
+  --desired-count 5
+```
+
+### Infrastructure Updates
+
+```bash
+# Update Terraform configuration
+vim terraform.tfvars
+
+# Plan changes
+terraform plan
+
+# Apply updates
 terraform apply
 ```
 
----
+## 🗑️ Cleanup
 
-## 💰 Cost Optimization Tips
+To destroy all resources:
 
-1. **Use Fargate Spot:** Save up to 70% on compute costs
-2. **Right-size Resources:** Match CPU/memory to actual usage
-3. **Use Reserved Capacity:** For predictable workloads
-4. **Enable S3 Lifecycle Policies:** Transition old data to cheaper storage classes
-5. **Use RDS Reserved Instances:** For long-term database usage
-6. **Delete Unused Resources:** Regularly audit and remove unused infrastructure
-7. **Use CloudWatch Insights:** Identify optimization opportunities
+```bash
+# Destroy everything
+terraform destroy
 
----
+# Confirm with 'yes'
+```
 
-## 🎉 Setup Complete!
-
-Congratulations! You've successfully:
-
-- ✅ Created AWS ECS infrastructure with Terraform
-- ✅ Configured ECR repositories for container images
-- ✅ Set up Application Load Balancer with path-based routing
-- ✅ Deployed RDS database with automated backups
-- ✅ Created S3 buckets for file storage
-- ✅ Configured GitHub secrets and variables
-- ✅ Set up CI/CD pipelines for automated deployments
-- ✅ Deployed sample applications to ECS
-
-### 🔗 Access Your Application
-
-- **Frontend:** `http://<alb-dns-name>/`
-- **Backend API:** `http://<alb-dns-name>/api`
-- **Health Check:** `http://<alb-dns-name>/health`
-
-### 📈 Next Steps
-
-1. **Configure Custom Domain:** Point your domain to ALB DNS
-2. **Enable HTTPS:** Add SSL/TLS certificate to ALB
-3. **Set Up Monitoring:** Create CloudWatch dashboards
-4. **Implement Backups:** Configure automated backup strategies
-5. **Add WAF Rules:** Enhance security with AWS WAF
-6. **Optimize Costs:** Review and right-size resources
-
----
-
-## 🆘 Need Help?
-
-If you encounter any issues:
-
-- **Check Prerequisites:** Ensure all requirements are met
-- **Review Logs:** Check CloudWatch logs for detailed errors
-- **AWS Documentation:** Refer to official AWS ECS documentation
-- **Contact DevOps Team:** Reach out for additional support
-
----
+⚠️ **Warning:** This will delete all resources including the database. Ensure you have backups if needed.
 
 ## 📚 Additional Resources
 
-- [AWS ECS Documentation](https://docs.aws.amazon.com/ecs/)
+- [AWS ECS Fargate Documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html)
 - [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-- [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [ECS Task Sizing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html)
+- [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## ⚠️ Important Notes
+
+- **Database Password**: Change the default RDS password immediately after deployment
+- **Costs**: Monitor AWS costs regularly, especially NAT Gateway and data transfer
+- **Backups**: Configure automated RDS snapshots (already enabled with 7-day retention)
+- **Alerts**: Set up SNS topics for CloudWatch Alarms (not included, add if needed)
+- **Domain**: Configure Route53 and SSL certificates for production domains
+
+## 📞 Support
+
+For issues or questions:
+1. Check CloudWatch Logs
+2. Review AWS ECS documentation
+3. Open an issue in the repository
+4. Contact your DevOps team
 
 ---
 
-**Version:** 1.0.0  
-**Last Updated:** November 2025  
-**Maintained By:** DevOps Team
+**Last Updated**: December 2025
+**Terraform Version**: >= 1.0
+**AWS Provider Version**: >= 5.0

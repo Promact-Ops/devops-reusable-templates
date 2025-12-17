@@ -427,3 +427,9 @@ variable "ecs_instance_max_count" {
   type        = number
   default     = 4
 }
+
+variable "target_memory_utilization" {
+  description = "Target memory utilization for autoscaling"
+  type        = number
+  default     = 75
+}
